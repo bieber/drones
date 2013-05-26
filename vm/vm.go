@@ -13,10 +13,10 @@ import (
 type Opcode uint
 
 const (
-	_ Opcode = iota
+	_ = iota
 
 	// Does nothing for 1 clock cycle.
-	Nop
+	Nop Opcode = iota
 
 	// Jumps to the argument address.
 	Jmp
