@@ -8,5 +8,5 @@ import (
 
 func main() {
 	v := vm.New(20, 10)
-	fmt.Println(v)
+	fmt.Println(v.Debug())
 }
