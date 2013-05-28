@@ -12,19 +12,41 @@ const (
 	// Jumps to the argument address.
 	Jmp
 	// Jumps to the argument address only if a == 0.
-	Jmpz
+	Jz
+	// Jumps to the argument address only if a != 0.
+	Jnz
+
+	// Swaps the a and b registers.
+	Sab
+	// Swaps the a and p registers.
+	Sap
+	// Swaps the a and i registers.
+	Sai
 
 	// Loads a constant argument into a.
 	Ldc
+	// Loads from memory at the argument address into a.
+	Ldm
+	// Loads from memory at the address in p into a.
+	Ldp
+	// Loads from memory at the address in (p + i) into a.
+	Ldi
 )
 
 // OpcodeNames returns a map of opcode values to their name.
 func OpcodeNames() map[Opcode]string {
 	return map[Opcode]string{
-		Nop:  "nop",
-		Jmp:  "jmp",
-		Jmpz: "jmpz",
-		Ldc:  "ldc",
+		Nop: "nop",
+		Jmp: "jmp",
+		Jz:  "jz",
+		Jnz: "jnz",
+		Sab: "sab",
+		Sap: "sap",
+		Sai: "sai",
+		Ldc: "ldc",
+		Ldm: "ldm",
+		Ldp: "ldp",
+		Ldi: "ldi",
 	}
 }
 
@@ -48,15 +70,41 @@ func (vm *VM) Clock() {
 	case Nop:
 		// Do nothing
 
+		// Jumps
 	case Jmp:
 		vm.ip = arg
-	case Jmpz:
+	case Jz:
 		if vm.a == 0 {
 			vm.ip = arg
 		}
+	case Jnz:
+		if vm.a != 0 {
+			vm.ip = arg
+		}
 
+		// Swaps
+	case Sab:
+		vm.b = vm.a ^ vm.b
+		vm.a = vm.a ^ vm.b
+		vm.b = vm.a ^ vm.b
+	case Sap:
+		vm.p = vm.a ^ vm.p
+		vm.a = vm.a ^ vm.p
+		vm.p = vm.a ^ vm.p
+	case Sai:
+		vm.i = vm.a ^ vm.i
+		vm.a = vm.a ^ vm.i
+		vm.i = vm.a ^ vm.i
+
+		// Loads
 	case Ldc:
 		vm.a = arg
+	case Ldm:
+		vm.a = vm.mem[arg]
+	case Ldp:
+		vm.a = vm.mem[vm.p]
+	case Ldi:
+		vm.a = vm.mem[vm.p+vm.i]
 
 	default:
 		panic("vm: Invalid opcode")
