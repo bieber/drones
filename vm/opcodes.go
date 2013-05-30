@@ -38,6 +38,11 @@ const (
 	Push
 	// Pops the top of the stack into a.
 	Pop
+
+	// Reads from the bus number in the argument into a.
+	Rb
+	// Writes from a into the bus number in the argument.
+	Wb
 )
 
 // OpcodeNames returns a map of opcode values to their name.
@@ -57,6 +62,8 @@ func OpcodeNames() map[Opcode]string {
 		Ldi:  "ldi",
 		Push: "push",
 		Pop:  "pop",
+		Rb:   "rb",
+		Wb:   "wb",
 	}
 }
 
@@ -132,6 +139,12 @@ func (vm *VM) Clock() {
 	case Pop:
 		vm.a = vm.mem[vm.sp+1]
 		vm.sp++
+
+		// Bus communication
+	case Rb:
+		vm.a = vm.Buses[arg]
+	case Wb:
+		vm.Buses[arg] = vm.a
 
 	default:
 		panic("vm: Invalid opcode")

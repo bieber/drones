@@ -16,7 +16,7 @@ type suite struct {
 var _ = Suite(&suite{})
 
 func (s *suite) SetUpTest(c *C) {
-	s.vm = New(20, 2)
+	s.vm = New(20, 10)
 }
 
 func (s *suite) TestJmp(c *C) {
@@ -55,7 +55,7 @@ func (s *suite) TestSwaps(c *C) {
 	c.Assert(s.vm.a, Equals, uint16(0))
 
 	s.vm.Clock()
-	c.Assert(s.vm.p, Equals, uint16(len(s.vm.mem) - 1))
+	c.Assert(s.vm.p, Equals, uint16(len(s.vm.mem)-1))
 	c.Assert(s.vm.bp, Equals, s.vm.p)
 }
 
@@ -154,4 +154,25 @@ func (s *suite) TestStack(c *C) {
 	s.vm.ClockN(2)
 	c.Assert(s.vm.sp, Equals, top)
 	c.Assert(s.vm.a, Equals, uint16(10))
+}
+
+func (s *suite) TestBuses(c *C) {
+	s.vm.LoadOpcodes(
+		[]Opcode{
+			Ldc, 5,
+			Wb, 0,
+			Rb, 1,
+			Wb, 2,
+		},
+	)
+
+	s.vm.ClockN(2)
+	c.Assert(s.vm.Buses[0], Equals, uint16(5))
+
+	s.vm.Buses[1] = 15
+	s.vm.Clock()
+	c.Assert(s.vm.a, Equals, uint16(15))
+
+	s.vm.Clock()
+	c.Assert(s.vm.Buses[2], Equals, uint16(15))
 }
