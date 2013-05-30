@@ -22,6 +22,8 @@ const (
 	Sap
 	// Swaps the a and i registers.
 	Sai
+	// Loads the b register into p.
+	Lbp
 
 	// Loads a constant argument into a.
 	Ldc
@@ -48,6 +50,7 @@ func OpcodeNames() map[Opcode]string {
 		Sab:  "sab",
 		Sap:  "sap",
 		Sai:  "sai",
+		Lbp:  "lbp",
 		Ldc:  "ldc",
 		Ldm:  "ldm",
 		Ldp:  "ldp",
@@ -109,6 +112,8 @@ func (vm *VM) Clock() {
 		vm.i = vm.a ^ vm.i
 		vm.a = vm.a ^ vm.i
 		vm.i = vm.a ^ vm.i
+	case Lbp:
+		vm.p = vm.bp
 
 		// Loads
 	case Ldc:

@@ -38,17 +38,25 @@ func (s *suite) TestSwaps(c *C) {
 			Sap, 0,
 			Ldc, 3,
 			Sai, 0,
+			Lbp, 0,
 		},
 	)
 
 	s.vm.ClockN(2)
 	c.Assert(s.vm.b, Equals, uint16(1))
+	c.Assert(s.vm.a, Equals, uint16(0))
 
 	s.vm.ClockN(2)
 	c.Assert(s.vm.p, Equals, uint16(2))
+	c.Assert(s.vm.a, Equals, uint16(0))
 
 	s.vm.ClockN(2)
 	c.Assert(s.vm.i, Equals, uint16(3))
+	c.Assert(s.vm.a, Equals, uint16(0))
+
+	s.vm.Clock()
+	c.Assert(s.vm.p, Equals, uint16(len(s.vm.mem) - 1))
+	c.Assert(s.vm.bp, Equals, s.vm.p)
 }
 
 func (s *suite) TestJumps(c *C) {
