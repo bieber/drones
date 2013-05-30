@@ -31,22 +31,36 @@ const (
 	Ldp
 	// Loads from memory at the address in (p + i) into a.
 	Ldi
+
+	// Pushes the content of a onto the stack.
+	Push
+	// Pops the top of the stack into a.
+	Pop
 )
 
 // OpcodeNames returns a map of opcode values to their name.
 func OpcodeNames() map[Opcode]string {
 	return map[Opcode]string{
-		Nop: "nop",
-		Jmp: "jmp",
-		Jz:  "jz",
-		Jnz: "jnz",
-		Sab: "sab",
-		Sap: "sap",
-		Sai: "sai",
-		Ldc: "ldc",
-		Ldm: "ldm",
-		Ldp: "ldp",
-		Ldi: "ldi",
+		Nop:  "nop",
+		Jmp:  "jmp",
+		Jz:   "jz",
+		Jnz:  "jnz",
+		Sab:  "sab",
+		Sap:  "sap",
+		Sai:  "sai",
+		Ldc:  "ldc",
+		Ldm:  "ldm",
+		Ldp:  "ldp",
+		Ldi:  "ldi",
+		Push: "push",
+		Pop:  "pop",
+	}
+}
+
+// ClockN runs Clock() on the vm n times.
+func (vm *VM) ClockN(n int) {
+	for i := 0; i < n; i++ {
+		vm.Clock()
 	}
 }
 
@@ -105,6 +119,14 @@ func (vm *VM) Clock() {
 		vm.a = vm.mem[vm.p]
 	case Ldi:
 		vm.a = vm.mem[vm.p+vm.i]
+
+		// Stack manipulation
+	case Push:
+		vm.mem[vm.sp] = vm.a
+		vm.sp--
+	case Pop:
+		vm.a = vm.mem[vm.sp+1]
+		vm.sp++
 
 	default:
 		panic("vm: Invalid opcode")

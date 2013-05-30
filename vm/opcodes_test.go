@@ -41,16 +41,13 @@ func (s *suite) TestSwaps(c *C) {
 		},
 	)
 
-	s.vm.Clock()
-	s.vm.Clock()
+	s.vm.ClockN(2)
 	c.Assert(s.vm.b, Equals, uint16(1))
 
-	s.vm.Clock()
-	s.vm.Clock()
+	s.vm.ClockN(2)
 	c.Assert(s.vm.p, Equals, uint16(2))
 
-	s.vm.Clock()
-	s.vm.Clock()
+	s.vm.ClockN(2)
 	c.Assert(s.vm.i, Equals, uint16(3))
 }
 
@@ -108,10 +105,7 @@ func (s *suite) TestLoads(c *C) {
 	s.vm.Clock()
 	c.Assert(s.vm.a, Equals, uint16(3))
 
-	s.vm.Clock()
-	s.vm.Clock()
-	s.vm.Clock()
-	s.vm.Clock()
+	s.vm.ClockN(4)
 	c.Assert(s.vm.a, Equals, uint16(500))
 
 	s.vm.Clock()
@@ -119,4 +113,37 @@ func (s *suite) TestLoads(c *C) {
 
 	s.vm.Clock()
 	c.Assert(s.vm.a, Equals, uint16(900))
+}
+
+func (s *suite) TestStack(c *C) {
+	s.vm.LoadOpcodes(
+		[]Opcode{
+			Ldc, 10,
+			Push, 0,
+			Ldc, 20,
+			Push, 0,
+			Ldc, 30,
+			Pop, 0,
+			Ldc, 40,
+			Pop, 0,
+		},
+	)
+
+	top := uint16(len(s.vm.mem) - 1)
+
+	s.vm.ClockN(2)
+	c.Assert(s.vm.sp, Equals, top-1)
+	c.Assert(s.vm.mem[top], Equals, uint16(10))
+
+	s.vm.ClockN(2)
+	c.Assert(s.vm.sp, Equals, top-2)
+	c.Assert(s.vm.mem[top-1], Equals, uint16(20))
+
+	s.vm.ClockN(2)
+	c.Assert(s.vm.sp, Equals, top-1)
+	c.Assert(s.vm.a, Equals, uint16(20))
+
+	s.vm.ClockN(2)
+	c.Assert(s.vm.sp, Equals, top)
+	c.Assert(s.vm.a, Equals, uint16(10))
 }
