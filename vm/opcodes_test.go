@@ -1,3 +1,20 @@
+/*
+ * This file is part of drones.
+ *
+ * drones is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * drones is distributed in the hope that it will be useful,
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with drones.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package vm
 
 import (
@@ -16,7 +33,7 @@ type suite struct {
 var _ = Suite(&suite{})
 
 func (s *suite) SetUpTest(c *C) {
-	s.vm = New(20, 10)
+	s.vm = New(30, 10)
 }
 
 func (s *suite) TestJmp(c *C) {
@@ -175,4 +192,54 @@ func (s *suite) TestBuses(c *C) {
 
 	s.vm.Clock()
 	c.Assert(s.vm.Buses[2], Equals, uint16(15))
+}
+
+func (s *suite) TestFuncs(c *C) {
+	s.vm.LoadOpcodes(
+		[]Opcode{
+			Ldc, 29,
+			Push, 0,
+			Call, 12,
+			Jmp, 100,
+			Ldc, 5, // Second function
+			Ret, 0,
+			Lbp, 0, // First function
+			Ldc, 1,
+			Sai, 0,
+			Ldi, 0,
+			Call, 8,
+			Ret, 0,
+		},
+	)
+
+	top := uint16(len(s.vm.mem) - 1)
+
+	s.vm.ClockN(3)
+	c.Assert(s.vm.ip, Equals, uint16(12))
+	c.Assert(s.vm.mem[s.vm.bp], Equals, uint16(6))
+	c.Assert(s.vm.mem[s.vm.bp-1], Equals, top)
+	f1bp := s.vm.bp
+
+	s.vm.ClockN(4)
+	c.Assert(s.vm.a, Equals, uint16(29))
+
+	s.vm.Clock()
+	c.Assert(s.vm.ip, Equals, uint16(8))
+	c.Assert(s.vm.mem[s.vm.bp], Equals, uint16(22))
+	c.Assert(s.vm.mem[s.vm.bp-1], Equals, f1bp)
+
+	s.vm.Clock()
+	c.Assert(s.vm.a, Equals, uint16(5))
+
+	s.vm.Clock()
+	c.Assert(s.vm.ip, Equals, uint16(22))
+	c.Assert(s.vm.mem[s.vm.bp], Equals, uint16(6))
+	c.Assert(s.vm.mem[s.vm.bp-1], Equals, top)
+
+	s.vm.Clock()
+	c.Assert(s.vm.ip, Equals, uint16(6))
+	c.Assert(s.vm.bp, Equals, top)
+	
+	s.vm.Clock()
+	c.Assert(s.vm.ip, Equals, uint16(100))
 }

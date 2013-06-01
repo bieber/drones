@@ -1,3 +1,20 @@
+/*
+ * This file is part of drones.
+ *
+ * drones is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * drones is distributed in the hope that it will be useful,
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with drones.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package vm
 
 // Opcode represents the executable opcodes for the VM.
@@ -43,6 +60,13 @@ const (
 	Rb
 	// Writes from a into the bus number in the argument.
 	Wb
+
+	// Jumps to the address in the argument preparing a new stack
+	// frame for a function call.  Does not automatically preserve
+	// registers, push them manually if you want to save them.
+	Call
+	// Returns from a function called with call.
+	Ret
 )
 
 // OpcodeNames returns a map of opcode values to their name.
@@ -64,6 +88,8 @@ func OpcodeNames() map[Opcode]string {
 		Pop:  "pop",
 		Rb:   "rb",
 		Wb:   "wb",
+		Call: "call",
+		Ret:  "ret",
 	}
 }
 
@@ -134,11 +160,9 @@ func (vm *VM) Clock() {
 
 		// Stack manipulation
 	case Push:
-		vm.mem[vm.sp] = vm.a
-		vm.sp--
+		vm.push(vm.a)
 	case Pop:
-		vm.a = vm.mem[vm.sp+1]
-		vm.sp++
+		vm.a = vm.pop()
 
 		// Bus communication
 	case Rb:
@@ -146,7 +170,30 @@ func (vm *VM) Clock() {
 	case Wb:
 		vm.Buses[arg] = vm.a
 
+		// Function calls
+	case Call:
+		newBase := vm.sp
+		vm.push(vm.ip)
+		vm.push(vm.bp)
+		vm.bp = newBase
+		vm.ip = arg
+	case Ret:
+		vm.sp = vm.bp - 2
+		vm.bp = vm.pop()
+		vm.ip = vm.pop()
+
 	default:
 		panic("vm: Invalid opcode")
 	}
+}
+
+func (vm *VM) push(value uint16) {
+	vm.mem[vm.sp] = value
+	vm.sp--
+}
+
+func (vm *VM) pop() (value uint16) {
+	value = vm.mem[vm.sp+1]
+	vm.sp++
+	return
 }
