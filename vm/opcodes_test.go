@@ -33,7 +33,7 @@ type suite struct {
 var _ = Suite(&suite{})
 
 func (s *suite) SetUpTest(c *C) {
-	s.vm = New(30, 10)
+	s.vm = New(50, 10)
 }
 
 func (s *suite) TestJmp(c *C) {
@@ -239,7 +239,49 @@ func (s *suite) TestFuncs(c *C) {
 	s.vm.Clock()
 	c.Assert(s.vm.ip, Equals, uint16(6))
 	c.Assert(s.vm.bp, Equals, top)
-	
+
 	s.vm.Clock()
 	c.Assert(s.vm.ip, Equals, uint16(100))
+}
+
+func (s *suite) TestArithmetic(c *C) {
+	s.vm.LoadOpcodes(
+		[]Opcode{
+		Ldc, 1,
+		Sab, 0,
+		Ldc, 5,
+		Add, 0,
+		Sab, 0,
+		Ldc, 13,
+		Sub, 0,
+		Sab, 0,
+		Ldc, 2,
+		Mul, 0,
+		Sab, 0,
+		Ldc, 0xfffe,
+		Mul, 0,
+		Sab, 0,
+		Ldc, 0xfffe,
+		Sab, 0,
+		Sdiv, 0,
+		Sab, 0,
+		Ldc, 8,
+		Sab, 0,
+		Div, 0,
+		},
+	)
+
+	s.vm.ClockN(4)
+	c.Assert(s.vm.a, Equals, uint16(6))
+	s.vm.ClockN(3)
+	c.Assert(s.vm.a, Equals, uint16(7))
+	s.vm.ClockN(3)
+	c.Assert(s.vm.a, Equals, uint16(14))
+	s.vm.ClockN(3)
+	c.Assert(s.vm.a, Equals, uint16(0xffe4))
+	s.vm.ClockN(4)
+	c.Assert(s.vm.a, Equals, uint16(14))
+	s.vm.ClockN(4)
+	c.Assert(s.vm.a, Equals, uint16(1))
+	c.Assert(s.vm.b, Equals, uint16(6))
 }

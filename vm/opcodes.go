@@ -67,6 +67,17 @@ const (
 	Call
 	// Returns from a function called with call.
 	Ret
+
+	// a <- a + b
+	Add
+	// a <- a - b
+	Sub
+	// a <- a * b
+	Mul
+	// a <- a / b, b <- a % b
+	Div
+	// a <- a / b, b <- a % b (signed)
+	Sdiv
 )
 
 // OpcodeNames returns a map of opcode values to their name.
@@ -90,6 +101,11 @@ func OpcodeNames() map[Opcode]string {
 		Wb:   "wb",
 		Call: "call",
 		Ret:  "ret",
+		Add:  "add",
+		Sub:  "sub",
+		Mul:  "mul",
+		Div:  "div",
+		Sdiv: "sdiv",
 	}
 }
 
@@ -181,6 +197,24 @@ func (vm *VM) Clock() {
 		vm.sp = vm.bp - 2
 		vm.bp = vm.pop()
 		vm.ip = vm.pop()
+
+		// Arithmetic
+	case Add:
+		vm.a = vm.a + vm.b
+	case Sub:
+		vm.a = vm.a - vm.b
+	case Mul:
+		vm.a = vm.a * vm.b
+	case Div:
+		a := vm.a
+		b := vm.b
+		vm.a = a / b
+		vm.b = a % b
+	case Sdiv:
+		a := vm.a
+		b := vm.b
+		vm.a = uint16(int16(a) / int16(b))
+		vm.b = uint16(int16(a) % int16(b))
 
 	default:
 		panic("vm: Invalid opcode")

@@ -134,8 +134,8 @@ func debugLine(label string, value uint16) string {
 		"%6s: %6s %8d %8d %#04x",
 		label,
 		opcodeName,
-		value,
 		int16(value),
+		value,
 		value,
 	)
 }
