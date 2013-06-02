@@ -89,6 +89,29 @@ const (
 	Shl
 	// a <- a >> b
 	Shr
+	// a <- ~a
+	Not
+
+	// a <- a < b ? 0xffff : 0
+	Lt
+	// a <- a < b ? 0xffff : 0 (signed)
+	Lts
+	// a <- a <= b ? 0xffff : 0
+	Le
+	// a <- a <= b ? 0xffff : 0 (signed)
+	Les
+	// a <- a > b ? 0xffff : 0
+	Gt
+	// a <- a > b ? 0xffff : 0 (signed)
+	Gts
+	// a <- a >= b ? 0xffff : 0
+	Ge
+	// a <- a >= b ? 0xffff : 0 (signed)
+	Ges
+	// a <- a == b ? 0xffff : 0
+	Eq
+	// a <- a != b ? 0xfff : 0
+	Neq
 )
 
 // OpcodeNames returns a map of opcode values to their name.
@@ -122,6 +145,17 @@ func OpcodeNames() map[Opcode]string {
 		Xor:  "xor",
 		Shl:  "shl",
 		Shr:  "shr",
+		Not:  "not",
+		Lt:   "lt",
+		Lts:  "lts",
+		Le:   "le",
+		Les:  "les",
+		Gt:   "gt",
+		Gts:  "gts",
+		Ge:   "ge",
+		Ges:  "ges",
+		Eq:   "eq",
+		Neq:  "neq",
 	}
 }
 
@@ -241,8 +275,32 @@ func (vm *VM) Clock() {
 		vm.a = vm.a ^ vm.b
 	case Shl:
 		vm.a = vm.a << vm.b
-	case Shr: 
+	case Shr:
 		vm.a = vm.a >> vm.b
+	case Not:
+		vm.a = ^vm.a
+
+	// Comparisons
+	case Lt:
+		vm.a = vmBinary(vm.a < vm.b)
+	case Lts:
+		vm.a = vmBinary(int16(vm.a) < int16(vm.b))
+	case Le:
+		vm.a = vmBinary(vm.a <= vm.b)
+	case Les:
+		vm.a = vmBinary(int16(vm.a) <= int16(vm.b))
+	case Gt:
+		vm.a = vmBinary(vm.a > vm.b)
+	case Gts:
+		vm.a = vmBinary(int16(vm.a) > int16(vm.b))
+	case Ge:
+		vm.a = vmBinary(vm.a >= vm.b)
+	case Ges:
+		vm.a = vmBinary(int16(vm.a) >= int16(vm.b))
+	case Eq:
+		vm.a = vmBinary(vm.a == vm.b)
+	case Neq:
+		vm.a = vmBinary(vm.a != vm.b)
 
 	default:
 		panic("vm: Invalid opcode")
@@ -258,4 +316,13 @@ func (vm *VM) pop() (value uint16) {
 	value = vm.mem[vm.sp+1]
 	vm.sp++
 	return
+}
+
+// Maps true to 0xffff and false to 0 for the VM
+func vmBinary(cond bool) uint16 {
+	if cond {
+		return 0xffff
+	} else {
+		return 0
+	}
 }

@@ -18,35 +18,40 @@
 package vm
 
 import (
-	. "launchpad.net/gocheck"
+	"encoding/binary"
+	ck "launchpad.net/gocheck"
+	"math/rand"
 	"testing"
 )
 
 func Test(t *testing.T) {
-	TestingT(t)
+	ck.TestingT(t)
 }
 
 type suite struct {
 	vm *VM
+	r  *rand.Rand
 }
 
-var _ = Suite(&suite{})
+var _ = ck.Suite(&suite{})
 
-func (s *suite) SetUpTest(c *C) {
-	s.vm = New(50, 10)
+func (s *suite) SetUpTest(c *ck.C) {
+	s.vm = New(100, 10)
+	// Using the same seed every time keeps the random tests deterministic
+	s.r = rand.New(rand.NewSource(50))
 }
 
-func (s *suite) TestJmp(c *C) {
+func (s *suite) TestJmp(c *ck.C) {
 	s.vm.LoadOpcodes(
 		[]Opcode{
 			Jmp, 6,
 		},
 	)
 	s.vm.Clock()
-	c.Assert(s.vm.ip, Equals, uint16(6))
+	c.Assert(s.vm.ip, ck.Equals, uint16(6))
 }
 
-func (s *suite) TestSwaps(c *C) {
+func (s *suite) TestSwaps(c *ck.C) {
 	s.vm.LoadOpcodes(
 		[]Opcode{
 			Ldc, 1,
@@ -60,23 +65,23 @@ func (s *suite) TestSwaps(c *C) {
 	)
 
 	s.vm.ClockN(2)
-	c.Assert(s.vm.b, Equals, uint16(1))
-	c.Assert(s.vm.a, Equals, uint16(0))
+	c.Assert(s.vm.b, ck.Equals, uint16(1))
+	c.Assert(s.vm.a, ck.Equals, uint16(0))
 
 	s.vm.ClockN(2)
-	c.Assert(s.vm.p, Equals, uint16(2))
-	c.Assert(s.vm.a, Equals, uint16(0))
+	c.Assert(s.vm.p, ck.Equals, uint16(2))
+	c.Assert(s.vm.a, ck.Equals, uint16(0))
 
 	s.vm.ClockN(2)
-	c.Assert(s.vm.i, Equals, uint16(3))
-	c.Assert(s.vm.a, Equals, uint16(0))
+	c.Assert(s.vm.i, ck.Equals, uint16(3))
+	c.Assert(s.vm.a, ck.Equals, uint16(0))
 
 	s.vm.Clock()
-	c.Assert(s.vm.p, Equals, uint16(len(s.vm.mem)-1))
-	c.Assert(s.vm.bp, Equals, s.vm.p)
+	c.Assert(s.vm.p, ck.Equals, uint16(len(s.vm.mem)-1))
+	c.Assert(s.vm.bp, ck.Equals, s.vm.p)
 }
 
-func (s *suite) TestJumps(c *C) {
+func (s *suite) TestJumps(c *ck.C) {
 	s.vm.LoadOpcodes(
 		[]Opcode{
 			Jz, 6,
@@ -91,30 +96,30 @@ func (s *suite) TestJumps(c *C) {
 	)
 
 	s.vm.Clock()
-	c.Assert(s.vm.ip, Equals, uint16(6))
+	c.Assert(s.vm.ip, ck.Equals, uint16(6))
 
 	s.vm.Clock()
-	c.Assert(s.vm.ip, Equals, uint16(8))
-	c.Assert(s.vm.a, Equals, uint16(2))
+	c.Assert(s.vm.ip, ck.Equals, uint16(8))
+	c.Assert(s.vm.a, ck.Equals, uint16(2))
 
 	s.vm.Clock()
-	c.Assert(s.vm.ip, Equals, uint16(10))
+	c.Assert(s.vm.ip, ck.Equals, uint16(10))
 
 	s.vm.Clock()
-	c.Assert(s.vm.ip, Equals, uint16(14))
+	c.Assert(s.vm.ip, ck.Equals, uint16(14))
 
 	s.vm.Clock()
-	c.Assert(s.vm.ip, Equals, uint16(2))
+	c.Assert(s.vm.ip, ck.Equals, uint16(2))
 
 	s.vm.Clock()
-	c.Assert(s.vm.ip, Equals, uint16(4))
-	c.Assert(s.vm.a, Equals, uint16(0))
+	c.Assert(s.vm.ip, ck.Equals, uint16(4))
+	c.Assert(s.vm.a, ck.Equals, uint16(0))
 
 	s.vm.Clock()
-	c.Assert(s.vm.ip, Equals, uint16(6))
+	c.Assert(s.vm.ip, ck.Equals, uint16(6))
 }
 
-func (s *suite) TestLoads(c *C) {
+func (s *suite) TestLoads(c *ck.C) {
 	s.vm.LoadOpcodes(
 		[]Opcode{
 			Ldc, 3,
@@ -128,19 +133,19 @@ func (s *suite) TestLoads(c *C) {
 	)
 
 	s.vm.Clock()
-	c.Assert(s.vm.a, Equals, uint16(3))
+	c.Assert(s.vm.a, ck.Equals, uint16(3))
 
 	s.vm.ClockN(4)
-	c.Assert(s.vm.a, Equals, uint16(500))
+	c.Assert(s.vm.a, ck.Equals, uint16(500))
 
 	s.vm.Clock()
-	c.Assert(s.vm.a, Equals, uint16(700))
+	c.Assert(s.vm.a, ck.Equals, uint16(700))
 
 	s.vm.Clock()
-	c.Assert(s.vm.a, Equals, uint16(900))
+	c.Assert(s.vm.a, ck.Equals, uint16(900))
 }
 
-func (s *suite) TestStack(c *C) {
+func (s *suite) TestStack(c *ck.C) {
 	s.vm.LoadOpcodes(
 		[]Opcode{
 			Ldc, 10,
@@ -157,23 +162,23 @@ func (s *suite) TestStack(c *C) {
 	top := uint16(len(s.vm.mem) - 1)
 
 	s.vm.ClockN(2)
-	c.Assert(s.vm.sp, Equals, top-1)
-	c.Assert(s.vm.mem[top], Equals, uint16(10))
+	c.Assert(s.vm.sp, ck.Equals, top-1)
+	c.Assert(s.vm.mem[top], ck.Equals, uint16(10))
 
 	s.vm.ClockN(2)
-	c.Assert(s.vm.sp, Equals, top-2)
-	c.Assert(s.vm.mem[top-1], Equals, uint16(20))
+	c.Assert(s.vm.sp, ck.Equals, top-2)
+	c.Assert(s.vm.mem[top-1], ck.Equals, uint16(20))
 
 	s.vm.ClockN(2)
-	c.Assert(s.vm.sp, Equals, top-1)
-	c.Assert(s.vm.a, Equals, uint16(20))
+	c.Assert(s.vm.sp, ck.Equals, top-1)
+	c.Assert(s.vm.a, ck.Equals, uint16(20))
 
 	s.vm.ClockN(2)
-	c.Assert(s.vm.sp, Equals, top)
-	c.Assert(s.vm.a, Equals, uint16(10))
+	c.Assert(s.vm.sp, ck.Equals, top)
+	c.Assert(s.vm.a, ck.Equals, uint16(10))
 }
 
-func (s *suite) TestBuses(c *C) {
+func (s *suite) TestBuses(c *ck.C) {
 	s.vm.LoadOpcodes(
 		[]Opcode{
 			Ldc, 5,
@@ -184,17 +189,17 @@ func (s *suite) TestBuses(c *C) {
 	)
 
 	s.vm.ClockN(2)
-	c.Assert(s.vm.Buses[0], Equals, uint16(5))
+	c.Assert(s.vm.Buses[0], ck.Equals, uint16(5))
 
 	s.vm.Buses[1] = 15
 	s.vm.Clock()
-	c.Assert(s.vm.a, Equals, uint16(15))
+	c.Assert(s.vm.a, ck.Equals, uint16(15))
 
 	s.vm.Clock()
-	c.Assert(s.vm.Buses[2], Equals, uint16(15))
+	c.Assert(s.vm.Buses[2], ck.Equals, uint16(15))
 }
 
-func (s *suite) TestFuncs(c *C) {
+func (s *suite) TestFuncs(c *ck.C) {
 	s.vm.LoadOpcodes(
 		[]Opcode{
 			Ldc, 29,
@@ -215,36 +220,36 @@ func (s *suite) TestFuncs(c *C) {
 	top := uint16(len(s.vm.mem) - 1)
 
 	s.vm.ClockN(3)
-	c.Assert(s.vm.ip, Equals, uint16(12))
-	c.Assert(s.vm.mem[s.vm.bp], Equals, uint16(6))
-	c.Assert(s.vm.mem[s.vm.bp-1], Equals, top)
+	c.Assert(s.vm.ip, ck.Equals, uint16(12))
+	c.Assert(s.vm.mem[s.vm.bp], ck.Equals, uint16(6))
+	c.Assert(s.vm.mem[s.vm.bp-1], ck.Equals, top)
 	f1bp := s.vm.bp
 
 	s.vm.ClockN(4)
-	c.Assert(s.vm.a, Equals, uint16(29))
+	c.Assert(s.vm.a, ck.Equals, uint16(29))
 
 	s.vm.Clock()
-	c.Assert(s.vm.ip, Equals, uint16(8))
-	c.Assert(s.vm.mem[s.vm.bp], Equals, uint16(22))
-	c.Assert(s.vm.mem[s.vm.bp-1], Equals, f1bp)
+	c.Assert(s.vm.ip, ck.Equals, uint16(8))
+	c.Assert(s.vm.mem[s.vm.bp], ck.Equals, uint16(22))
+	c.Assert(s.vm.mem[s.vm.bp-1], ck.Equals, f1bp)
 
 	s.vm.Clock()
-	c.Assert(s.vm.a, Equals, uint16(5))
+	c.Assert(s.vm.a, ck.Equals, uint16(5))
 
 	s.vm.Clock()
-	c.Assert(s.vm.ip, Equals, uint16(22))
-	c.Assert(s.vm.mem[s.vm.bp], Equals, uint16(6))
-	c.Assert(s.vm.mem[s.vm.bp-1], Equals, top)
+	c.Assert(s.vm.ip, ck.Equals, uint16(22))
+	c.Assert(s.vm.mem[s.vm.bp], ck.Equals, uint16(6))
+	c.Assert(s.vm.mem[s.vm.bp-1], ck.Equals, top)
 
 	s.vm.Clock()
-	c.Assert(s.vm.ip, Equals, uint16(6))
-	c.Assert(s.vm.bp, Equals, top)
+	c.Assert(s.vm.ip, ck.Equals, uint16(6))
+	c.Assert(s.vm.bp, ck.Equals, top)
 
 	s.vm.Clock()
-	c.Assert(s.vm.ip, Equals, uint16(100))
+	c.Assert(s.vm.ip, ck.Equals, uint16(100))
 }
 
-func (s *suite) TestArithmetic(c *C) {
+func (s *suite) TestArithmetic(c *ck.C) {
 	s.vm.LoadOpcodes(
 		[]Opcode{
 			Ldc, 1,
@@ -272,21 +277,21 @@ func (s *suite) TestArithmetic(c *C) {
 	)
 
 	s.vm.ClockN(4)
-	c.Assert(s.vm.a, Equals, uint16(6))
+	c.Assert(s.vm.a, ck.Equals, uint16(6))
 	s.vm.ClockN(3)
-	c.Assert(s.vm.a, Equals, uint16(7))
+	c.Assert(s.vm.a, ck.Equals, uint16(7))
 	s.vm.ClockN(3)
-	c.Assert(s.vm.a, Equals, uint16(14))
+	c.Assert(s.vm.a, ck.Equals, uint16(14))
 	s.vm.ClockN(3)
-	c.Assert(s.vm.a, Equals, uint16(0xffe4))
+	c.Assert(s.vm.a, ck.Equals, uint16(0xffe4))
 	s.vm.ClockN(4)
-	c.Assert(s.vm.a, Equals, uint16(14))
+	c.Assert(s.vm.a, ck.Equals, uint16(14))
 	s.vm.ClockN(4)
-	c.Assert(s.vm.a, Equals, uint16(1))
-	c.Assert(s.vm.b, Equals, uint16(6))
+	c.Assert(s.vm.a, ck.Equals, uint16(1))
+	c.Assert(s.vm.b, ck.Equals, uint16(6))
 }
 
-func (s *suite) TestBitwise(c *C) {
+func (s *suite) TestBitwise(c *ck.C) {
 	s.vm.LoadOpcodes(
 		[]Opcode{
 			Ldc, 0x6666,
@@ -306,22 +311,107 @@ func (s *suite) TestBitwise(c *C) {
 			Ldc, 2,
 			Sab, 0,
 			Shl, 0,
-		Sab, 0,
-		Ldc, 1,
-		Sab, 0,
-		Shr, 0,
+			Sab, 0,
+			Ldc, 1,
+			Sab, 0,
+			Shr, 0,
+			Not, 0,
 		},
 	)
 	s.vm.ClockN(4)
-	c.Assert(s.vm.a, Equals, uint16(0x2222))
+	c.Assert(s.vm.a, ck.Equals, uint16(0x2222))
 	s.vm.ClockN(3)
-	c.Assert(s.vm.a, Equals, uint16(0x3333))
+	c.Assert(s.vm.a, ck.Equals, uint16(0x3333))
 	s.vm.ClockN(3)
-	c.Assert(s.vm.a, Equals, uint16(0x1111))
+	c.Assert(s.vm.a, ck.Equals, uint16(0x1111))
 	s.vm.ClockN(3)
-	c.Assert(s.vm.a, Equals, uint16(0x3333))
+	c.Assert(s.vm.a, ck.Equals, uint16(0x3333))
 	s.vm.ClockN(4)
-	c.Assert(s.vm.a, Equals, uint16(0xcccc))
+	c.Assert(s.vm.a, ck.Equals, uint16(0xcccc))
 	s.vm.ClockN(4)
-	c.Assert(s.vm.a, Equals, uint16(0x6666))
+	c.Assert(s.vm.a, ck.Equals, uint16(0x6666))
+	s.vm.Clock()
+	c.Assert(s.vm.a, ck.Equals, uint16(0x9999))
+}
+
+func (s *suite) TestComparisons(c *ck.C) {
+	opcodes := []Opcode{
+		Ldc, 0,
+		Sab, 0,
+		Ldc, 0,
+		0, 0,
+	}
+
+	for i := 0; i < 100; i++ {
+		a, b := s.randPair()
+		if i%20 == 0 {
+			// Otherwise won't get any a == b cases
+			a = b
+		}
+		opcodes[5] = Opcode(a)
+		opcodes[1] = Opcode(b)
+
+		opcodes[6] = Lt
+		s.reset(opcodes)
+		s.vm.ClockN(4)
+		c.Assert(s.vm.a, ck.Equals, vmBinary(a < b))
+
+		opcodes[6] = Lts
+		s.reset(opcodes)
+		s.vm.ClockN(4)
+		c.Assert(s.vm.a, ck.Equals, vmBinary(int16(a) < int16(b)))
+
+		opcodes[6] = Le
+		s.reset(opcodes)
+		s.vm.ClockN(4)
+		c.Assert(s.vm.a, ck.Equals, vmBinary(a <= b))
+
+		opcodes[6] = Les
+		s.reset(opcodes)
+		s.vm.ClockN(4)
+		c.Assert(s.vm.a, ck.Equals, vmBinary(int16(a) <= int16(b)))
+
+		opcodes[6] = Gt
+		s.reset(opcodes)
+		s.vm.ClockN(4)
+		c.Assert(s.vm.a, ck.Equals, vmBinary(a > b))
+
+		opcodes[6] = Gts
+		s.reset(opcodes)
+		s.vm.ClockN(4)
+		c.Assert(s.vm.a, ck.Equals, vmBinary(int16(a) > int16(b)))
+
+		opcodes[6] = Ge
+		s.reset(opcodes)
+		s.vm.ClockN(4)
+		c.Assert(s.vm.a, ck.Equals, vmBinary(a >= b))
+
+		opcodes[6] = Ges
+		s.reset(opcodes)
+		s.vm.ClockN(4)
+		c.Assert(s.vm.a, ck.Equals, vmBinary(int16(a) >= int16(b)))
+
+		opcodes[6] = Eq
+		s.reset(opcodes)
+		s.vm.ClockN(4)
+		c.Assert(s.vm.a, ck.Equals, vmBinary(a == b))
+
+		opcodes[6] = Neq
+		s.reset(opcodes)
+		s.vm.ClockN(4)
+		c.Assert(s.vm.a, ck.Equals, vmBinary(a != b))
+	}
+}
+
+func (s *suite) randPair() (a uint16, b uint16) {
+	data := make([]byte, 4)
+	binary.LittleEndian.PutUint32(data, s.r.Uint32())
+	a = binary.LittleEndian.Uint16(data[0:2])
+	b = binary.LittleEndian.Uint16(data[2:4])
+	return
+}
+
+func (s *suite) reset(mem []Opcode) {
+	s.vm.LoadOpcodes(mem)
+	s.vm.ip = 0
 }
