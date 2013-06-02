@@ -78,6 +78,17 @@ const (
 	Div
 	// a <- a / b, b <- a % b (signed)
 	Sdiv
+
+	// a <- a & b
+	And
+	// a <- a | b
+	Or
+	// a <- a ^ b
+	Xor
+	// a <- a << b
+	Shl
+	// a <- a >> b
+	Shr
 )
 
 // OpcodeNames returns a map of opcode values to their name.
@@ -106,6 +117,11 @@ func OpcodeNames() map[Opcode]string {
 		Mul:  "mul",
 		Div:  "div",
 		Sdiv: "sdiv",
+		And:  "and",
+		Or:   "or",
+		Xor:  "xor",
+		Shl:  "shl",
+		Shr:  "shr",
 	}
 }
 
@@ -215,6 +231,18 @@ func (vm *VM) Clock() {
 		b := vm.b
 		vm.a = uint16(int16(a) / int16(b))
 		vm.b = uint16(int16(a) % int16(b))
+
+		// Bitwise
+	case And:
+		vm.a = vm.a & vm.b
+	case Or:
+		vm.a = vm.a | vm.b
+	case Xor:
+		vm.a = vm.a ^ vm.b
+	case Shl:
+		vm.a = vm.a << vm.b
+	case Shr: 
+		vm.a = vm.a >> vm.b
 
 	default:
 		panic("vm: Invalid opcode")

@@ -247,27 +247,27 @@ func (s *suite) TestFuncs(c *C) {
 func (s *suite) TestArithmetic(c *C) {
 	s.vm.LoadOpcodes(
 		[]Opcode{
-		Ldc, 1,
-		Sab, 0,
-		Ldc, 5,
-		Add, 0,
-		Sab, 0,
-		Ldc, 13,
-		Sub, 0,
-		Sab, 0,
-		Ldc, 2,
-		Mul, 0,
-		Sab, 0,
-		Ldc, 0xfffe,
-		Mul, 0,
-		Sab, 0,
-		Ldc, 0xfffe,
-		Sab, 0,
-		Sdiv, 0,
-		Sab, 0,
-		Ldc, 8,
-		Sab, 0,
-		Div, 0,
+			Ldc, 1,
+			Sab, 0,
+			Ldc, 5,
+			Add, 0,
+			Sab, 0,
+			Ldc, 13,
+			Sub, 0,
+			Sab, 0,
+			Ldc, 2,
+			Mul, 0,
+			Sab, 0,
+			Ldc, 0xfffe,
+			Mul, 0,
+			Sab, 0,
+			Ldc, 0xfffe,
+			Sab, 0,
+			Sdiv, 0,
+			Sab, 0,
+			Ldc, 8,
+			Sab, 0,
+			Div, 0,
 		},
 	)
 
@@ -284,4 +284,44 @@ func (s *suite) TestArithmetic(c *C) {
 	s.vm.ClockN(4)
 	c.Assert(s.vm.a, Equals, uint16(1))
 	c.Assert(s.vm.b, Equals, uint16(6))
+}
+
+func (s *suite) TestBitwise(c *C) {
+	s.vm.LoadOpcodes(
+		[]Opcode{
+			Ldc, 0x6666,
+			Sab, 0,
+			Ldc, 0x3333,
+			And, 0,
+			Sab, 0,
+			Ldc, 0x1111,
+			Or, 0,
+			Sab, 0,
+			Ldc, 0x2222,
+			Xor, 0,
+			Sab, 0,
+			Ldc, 0x2222,
+			Xor, 0,
+			Sab, 0,
+			Ldc, 2,
+			Sab, 0,
+			Shl, 0,
+		Sab, 0,
+		Ldc, 1,
+		Sab, 0,
+		Shr, 0,
+		},
+	)
+	s.vm.ClockN(4)
+	c.Assert(s.vm.a, Equals, uint16(0x2222))
+	s.vm.ClockN(3)
+	c.Assert(s.vm.a, Equals, uint16(0x3333))
+	s.vm.ClockN(3)
+	c.Assert(s.vm.a, Equals, uint16(0x1111))
+	s.vm.ClockN(3)
+	c.Assert(s.vm.a, Equals, uint16(0x3333))
+	s.vm.ClockN(4)
+	c.Assert(s.vm.a, Equals, uint16(0xcccc))
+	s.vm.ClockN(4)
+	c.Assert(s.vm.a, Equals, uint16(0x6666))
 }
