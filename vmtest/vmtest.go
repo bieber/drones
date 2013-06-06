@@ -19,16 +19,59 @@
 package main
 
 import (
-	"bytes"
+	"encoding/binary"
 	"fmt"
 	"github.com/bieber/drones/vm"
 )
 
 func main() {
-	mem := []byte{5, 0, 4, 0, 5, 3, 6, 25, 78, 12, 3, 4}
-	v := vm.New(4, 5)
-	v.LoadBinary(bytes.NewReader(mem))
-	fmt.Println(v.Debug())
-	v.Clock()
-	fmt.Println(v.Debug())
+	v := vm.New(200, 3)
+	v.LoadOpcodes(
+		[]vm.Opcode{
+			vm.Ldm, 52,
+			vm.Wb, 0,
+			vm.Ldc, 1,
+			vm.Wb, 1,
+			vm.Ldm, 53,
+			vm.Wb, 0,
+			vm.Ldc, 1,
+			vm.Wb, 1,
+			vm.Ldm, 54,
+			vm.Wb, 0,
+			vm.Ldc, 1,
+			vm.Wb, 1,
+			vm.Ldm, 55,
+			vm.Wb, 0,
+			vm.Ldc, 1,
+			vm.Wb, 1,
+			vm.Ldm, 56,
+			vm.Wb, 0,
+			vm.Ldc, 1,
+			vm.Wb, 1,
+			vm.Ldm, 57,
+			vm.Wb, 0,
+			vm.Ldc, 1,
+			vm.Wb, 1,
+			vm.Ldc, 1,
+			vm.Wb, 2,
+			vm.Opcode(binary.LittleEndian.Uint16([]byte("He"))),
+			vm.Opcode(binary.LittleEndian.Uint16([]byte("ll"))),
+			vm.Opcode(binary.LittleEndian.Uint16([]byte("o "))),
+			vm.Opcode(binary.LittleEndian.Uint16([]byte("Wo"))),
+			vm.Opcode(binary.LittleEndian.Uint16([]byte("rl"))),
+			vm.Opcode(binary.LittleEndian.Uint16([]byte("d\n"))),
+		},
+	)
+	for {
+		v.Clock()
+		if v.Buses[1] != 0 {
+			v.Buses[1] = 0
+			chars := make([]byte, 2)
+			binary.LittleEndian.PutUint16(chars, v.Buses[0])
+			fmt.Print(string(chars))
+		}
+		if v.Buses[2] != 0 {
+			break
+		}
+	}
 }
