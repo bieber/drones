@@ -282,25 +282,25 @@ func (vm *VM) Clock() {
 
 	// Comparisons
 	case Lt:
-		vm.a = vmBinary(vm.a < vm.b)
+		vm.a = vmBool(vm.a < vm.b)
 	case Lts:
-		vm.a = vmBinary(int16(vm.a) < int16(vm.b))
+		vm.a = vmBool(int16(vm.a) < int16(vm.b))
 	case Le:
-		vm.a = vmBinary(vm.a <= vm.b)
+		vm.a = vmBool(vm.a <= vm.b)
 	case Les:
-		vm.a = vmBinary(int16(vm.a) <= int16(vm.b))
+		vm.a = vmBool(int16(vm.a) <= int16(vm.b))
 	case Gt:
-		vm.a = vmBinary(vm.a > vm.b)
+		vm.a = vmBool(vm.a > vm.b)
 	case Gts:
-		vm.a = vmBinary(int16(vm.a) > int16(vm.b))
+		vm.a = vmBool(int16(vm.a) > int16(vm.b))
 	case Ge:
-		vm.a = vmBinary(vm.a >= vm.b)
+		vm.a = vmBool(vm.a >= vm.b)
 	case Ges:
-		vm.a = vmBinary(int16(vm.a) >= int16(vm.b))
+		vm.a = vmBool(int16(vm.a) >= int16(vm.b))
 	case Eq:
-		vm.a = vmBinary(vm.a == vm.b)
+		vm.a = vmBool(vm.a == vm.b)
 	case Neq:
-		vm.a = vmBinary(vm.a != vm.b)
+		vm.a = vmBool(vm.a != vm.b)
 
 	default:
 		panic("vm: Invalid opcode")
@@ -319,7 +319,7 @@ func (vm *VM) pop() (value uint16) {
 }
 
 // Maps true to 0xffff and false to 0 for the VM
-func vmBinary(cond bool) uint16 {
+func vmBool(cond bool) uint16 {
 	if cond {
 		return 0xffff
 	} else {

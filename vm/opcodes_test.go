@@ -354,52 +354,52 @@ func (s *suite) TestComparisons(c *ck.C) {
 		opcodes[6] = Lt
 		s.reset(opcodes)
 		s.vm.ClockN(4)
-		c.Assert(s.vm.a, ck.Equals, vmBinary(a < b))
+		c.Assert(s.vm.a, ck.Equals, vmBool(a < b))
 
 		opcodes[6] = Lts
 		s.reset(opcodes)
 		s.vm.ClockN(4)
-		c.Assert(s.vm.a, ck.Equals, vmBinary(int16(a) < int16(b)))
+		c.Assert(s.vm.a, ck.Equals, vmBool(int16(a) < int16(b)))
 
 		opcodes[6] = Le
 		s.reset(opcodes)
 		s.vm.ClockN(4)
-		c.Assert(s.vm.a, ck.Equals, vmBinary(a <= b))
+		c.Assert(s.vm.a, ck.Equals, vmBool(a <= b))
 
 		opcodes[6] = Les
 		s.reset(opcodes)
 		s.vm.ClockN(4)
-		c.Assert(s.vm.a, ck.Equals, vmBinary(int16(a) <= int16(b)))
+		c.Assert(s.vm.a, ck.Equals, vmBool(int16(a) <= int16(b)))
 
 		opcodes[6] = Gt
 		s.reset(opcodes)
 		s.vm.ClockN(4)
-		c.Assert(s.vm.a, ck.Equals, vmBinary(a > b))
+		c.Assert(s.vm.a, ck.Equals, vmBool(a > b))
 
 		opcodes[6] = Gts
 		s.reset(opcodes)
 		s.vm.ClockN(4)
-		c.Assert(s.vm.a, ck.Equals, vmBinary(int16(a) > int16(b)))
+		c.Assert(s.vm.a, ck.Equals, vmBool(int16(a) > int16(b)))
 
 		opcodes[6] = Ge
 		s.reset(opcodes)
 		s.vm.ClockN(4)
-		c.Assert(s.vm.a, ck.Equals, vmBinary(a >= b))
+		c.Assert(s.vm.a, ck.Equals, vmBool(a >= b))
 
 		opcodes[6] = Ges
 		s.reset(opcodes)
 		s.vm.ClockN(4)
-		c.Assert(s.vm.a, ck.Equals, vmBinary(int16(a) >= int16(b)))
+		c.Assert(s.vm.a, ck.Equals, vmBool(int16(a) >= int16(b)))
 
 		opcodes[6] = Eq
 		s.reset(opcodes)
 		s.vm.ClockN(4)
-		c.Assert(s.vm.a, ck.Equals, vmBinary(a == b))
+		c.Assert(s.vm.a, ck.Equals, vmBool(a == b))
 
 		opcodes[6] = Neq
 		s.reset(opcodes)
 		s.vm.ClockN(4)
-		c.Assert(s.vm.a, ck.Equals, vmBinary(a != b))
+		c.Assert(s.vm.a, ck.Equals, vmBool(a != b))
 	}
 }
 
