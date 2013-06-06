@@ -27,6 +27,15 @@ The Drones VM is a strictly 16-bit machine: all of its registers are
 * p - Pointer register, used for dynamic memory loading operations.
 * i - Index register, used for indexed addressing.
 
+### Buses
+
+Buses are the VM's means of communication with the outside world.
+They're a set of 16-bit words which can be directly accessed by the
+code running the VM.  From inside the VM you can write and read them
+with the wb and rb instructions.  From outside the VM, you can
+directly access the Buses member of the VM struct, which is a slice of
+uint16.
+
 ### Operation
 
 The initial state of the machine puts sp and bp at the highest address
