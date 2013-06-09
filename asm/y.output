@@ -3,7 +3,7 @@ state 0
 	$accept: .input $end 
 	input: .    (1)
 
-	.  reduce 1 (src line 47)
+	.  reduce 1 (src line 43)
 
 	input  goto 1
 
@@ -17,6 +17,7 @@ state 1
 	LABEL  shift 4
 	IDENT  shift 5
 	ORG  shift 6
+	WORDS  shift 7
 	.  error
 
 	line  goto 3
@@ -24,20 +25,20 @@ state 1
 state 2
 	input:  input NEWLINE.    (2)
 
-	.  reduce 2 (src line 48)
+	.  reduce 2 (src line 44)
 
 
 state 3
 	input:  input line.NEWLINE 
 
-	NEWLINE  shift 7
+	NEWLINE  shift 8
 	.  error
 
 
 state 4
 	line:  LABEL.    (4)
 
-	.  reduce 4 (src line 52)
+	.  reduce 4 (src line 48)
 
 
 state 5
@@ -45,51 +46,73 @@ state 5
 	line:  IDENT.IDENT 
 	line:  IDENT.NUM 
 
-	NUM  shift 9
-	IDENT  shift 8
-	.  reduce 5 (src line 53)
+	NUM  shift 10
+	IDENT  shift 9
+	.  reduce 5 (src line 49)
 
 
 state 6
 	line:  ORG.NUM 
 
-	NUM  shift 10
+	NUM  shift 11
 	.  error
 
 
 state 7
-	input:  input line NEWLINE.    (3)
+	line:  WORDS.nums 
+	nums: .    (10)
 
-	.  reduce 3 (src line 49)
+	.  reduce 10 (src line 56)
 
+	nums  goto 12
 
 state 8
-	line:  IDENT IDENT.    (6)
+	input:  input line NEWLINE.    (3)
 
-	.  reduce 6 (src line 54)
+	.  reduce 3 (src line 45)
 
 
 state 9
-	line:  IDENT NUM.    (7)
+	line:  IDENT IDENT.    (6)
 
-	.  reduce 7 (src line 55)
+	.  reduce 6 (src line 50)
 
 
 state 10
+	line:  IDENT NUM.    (7)
+
+	.  reduce 7 (src line 51)
+
+
+state 11
 	line:  ORG NUM.    (8)
 
-	.  reduce 8 (src line 56)
+	.  reduce 8 (src line 52)
 
 
-10 terminals, 3 nonterminals
-9 grammar rules, 11/2000 states
+state 12
+	line:  WORDS nums.    (9)
+	nums:  nums.NUM 
+
+	NUM  shift 13
+	.  reduce 9 (src line 53)
+
+
+state 13
+	nums:  nums NUM.    (11)
+
+	.  reduce 11 (src line 57)
+
+
+10 terminals, 4 nonterminals
+12 grammar rules, 14/2000 states
 0 shift/reduce, 0 reduce/reduce conflicts reported
-52 working sets used
-memory: parser 1/30000
+53 working sets used
+memory: parser 2/30000
 0 extra closures
-8 shift entries, 1 exceptions
-2 goto entries
+10 shift entries, 1 exceptions
+3 goto entries
 0 entries saved by goto default
-Optimizer space used: output 10/30000
-10 table entries, 0 zero
-maximum spread: 8, maximum offset: 5
+Optimizer space used: output 13/30000
+13 table entries, 0 zero
+maximum spread: 9, maximum offset: 5

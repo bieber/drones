@@ -19,44 +19,8 @@
 package asm
 
 import (
-	"bufio"
-	"fmt"
 	"strconv"
 )
-
-type lexer struct {
-	src 	*bufio.Reader
-	buf		[]byte
-	current	byte
-	empty 	bool
-	line	int
-}
-
-func newLexer(in *bufio.Reader) *lexer {
-	l := &lexer{src: in, line: 1}
-	if b, err := in.ReadByte(); err == nil {
-		l.current = b
-	}
-	return l
-}
-
-func (l *lexer) getc() byte {
-	if l.current != 0 {
-		l.buf = append(l.buf, l.current)
-		if l.current == '\n' {
-			l.line++
-		}
-	}
-	l.current = 0
-	if b, err := l.src.ReadByte(); err == nil {
-		l.current = b
-	}
-	return l.current
-}
-
-func (l *lexer) Error(e string) {
-	errorCodes = append(errorCodes, fmt.Sprintf("Line %d: %s", l.line, e))
-}
 
 func (l *lexer) Lex(lval *yySymType) int {
 	c := l.current
@@ -82,8 +46,11 @@ ID		[a-zA-Z][a-zA-Z0-9_]*
 
 %org
 	return ORG
+	
+%words
+	return WORDS
 
-{DECIMAL}|{HEX}
+-?{DECIMAL}|{HEX}
 	num, err := strconv.ParseInt(string(l.buf), 0, 16)
 	if err == nil {
 		lval.num = uint16(num)
@@ -93,7 +60,7 @@ ID		[a-zA-Z][a-zA-Z0-9_]*
 	}
 
 {ID}:
-	lval.str = string(l.buf)
+	lval.str = string(l.buf[:len(l.buf) - 1])
 	return LABEL
 	
 {ID}

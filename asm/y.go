@@ -1,17 +1,11 @@
-//line parser.y:18
+
+//line parser.y:19
 package asm
-
 import __yyfmt__ "fmt"
-
-//line parser.y:18
-import (
-	"bufio"
-	"errors"
-	"strings"
-)
-
-//line parser.y:27
-type yySymType struct {
+//line parser.y:19
+		
+//line parser.y:22
+type yySymType struct{
 	yys int
 	num uint16
 	str string
@@ -41,17 +35,9 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line parser.y:59
+//line parser.y:60
 
-// Assemble parses an assembly language program from in and returns the
-// assembled binary, or an error if something goes wrong.
-func Assemble(in *bufio.Reader) ([]uint16, error) {
-	if yyParse(newLexer(in)) == 0 {
-		return code, nil
-	} else {
-		return nil, errors.New(strings.Join(errorCodes, "\n"))
-	}
-}
+
 
 //line yacctab:1
 var yyExca = []int{
@@ -60,44 +46,47 @@ var yyExca = []int{
 	-2, 0,
 }
 
-const yyNprod = 9
+const yyNprod = 12
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 10
+const yyLast = 13
 
 var yyAct = []int{
 
-	2, 7, 4, 5, 6, 9, 10, 8, 3, 1,
+	2, 8, 4, 5, 6, 7, 10, 13, 9, 11,
+	3, 1, 12,
 }
 var yyPact = []int{
 
-	-1000, -4, -1000, -3, -1000, 0, 1, -1000, -1000, -1000,
-	-1000,
+	-1000, -4, -1000, -3, -1000, 1, 4, -1000, -1000, -1000,
+	-1000, -1000, 2, -1000,
 }
 var yyPgo = []int{
 
-	0, 9, 8,
+	0, 12, 11, 10,
 }
 var yyR1 = []int{
 
-	0, 1, 1, 1, 2, 2, 2, 2, 2,
+	0, 2, 2, 2, 3, 3, 3, 3, 3, 3,
+	1, 1,
 }
 var yyR2 = []int{
 
-	0, 0, 2, 3, 1, 1, 2, 2, 2,
+	0, 0, 2, 3, 1, 1, 2, 2, 2, 2,
+	0, 2,
 }
 var yyChk = []int{
 
-	-1000, -1, 4, -2, 6, 7, 8, 4, 7, 5,
-	5,
+	-1000, -2, 4, -3, 6, 7, 8, 9, 4, 7,
+	5, 5, -1, 5,
 }
 var yyDef = []int{
 
-	1, -2, 2, 0, 4, 5, 0, 3, 6, 7,
-	8,
+	1, -2, 2, 0, 4, 5, 0, 10, 3, 6,
+	7, 8, 9, 11,
 }
 var yyTok1 = []int{
 
@@ -337,30 +326,29 @@ yydefault:
 	switch yynt {
 
 	case 4:
-		//line parser.y:52
-		{
-			addLabel(yyS[yypt-0].str)
-		}
+		//line parser.y:48
+		{ addLabel(yyS[yypt-0].str) 				}
 	case 5:
-		//line parser.y:53
-		{
-			addOpcodeConstant(yyS[yypt-0].str, 0)
-		}
+		//line parser.y:49
+		{ addOpcodeConstant(yyS[yypt-0].str, 0) 	}
 	case 6:
-		//line parser.y:54
-		{
-			addOpcodeLabel(yyS[yypt-1].str, yyS[yypt-0].str)
-		}
+		//line parser.y:50
+		{ addOpcodeLabel(yyS[yypt-1].str, yyS[yypt-0].str) 	}
 	case 7:
-		//line parser.y:55
-		{
-			addOpcodeConstant(yyS[yypt-1].str, yyS[yypt-0].num)
-		}
+		//line parser.y:51
+		{ addOpcodeConstant(yyS[yypt-1].str, yyS[yypt-0].num)	}
 	case 8:
+		//line parser.y:52
+		{ setOrg(yyS[yypt-0].num) 				}
+	case 9:
+		//line parser.y:53
+		{ addWords(yyS[yypt-0].dat) 				}
+	case 10:
 		//line parser.y:56
-		{
-			setOrg(yyS[yypt-0].num)
-		}
+		{ yyVAL.dat = nil }
+	case 11:
+		//line parser.y:57
+		{ yyVAL.dat = append(yyS[yypt-1].dat, yyS[yypt-0].num) }
 	}
 	goto yystack /* stack new state and value */
 }

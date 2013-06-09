@@ -14,48 +14,44 @@
  * You should have received a copy of the GNU General Public License
  * along with drones.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
-%{
-package asm
-%}
 
-%union{
-	num uint16
-	str string
-	dat []uint16
+package asm
+
+import (
+	"bufio"
+	"fmt"
+)
+
+type lexer struct {
+	src     *bufio.Reader
+	buf     []byte
+	current byte
+	empty   bool
+	line    int
 }
 
-%token 	NEWLINE
-%token	NUM
-%token	LABEL
-%token 	IDENT
-%token 	ORG
-%token	WORDS
-%token	ILLEGAL
+func newLexer(in *bufio.Reader) *lexer {
+	l := &lexer{src: in, line: 1}
+	if b, err := in.ReadByte(); err == nil {
+		l.current = b
+	}
+	return l
+}
 
-%type	<num>	NUM
-%type	<str>	LABEL
-%type	<str>	IDENT
-%type	<dat>	nums
+func (l *lexer) getc() byte {
+	if l.current != 0 {
+		l.buf = append(l.buf, l.current)
+		if l.current == '\n' {
+			l.line++
+		}
+	}
+	l.current = 0
+	if b, err := l.src.ReadByte(); err == nil {
+		l.current = b
+	}
+	return l.current
+}
 
-%% /* Grammar */
-
-input:	  /*empty*/
-		| input NEWLINE
-		| input line NEWLINE
-;
-
-line:	  LABEL				{ addLabel($1) 				}
-		| IDENT				{ addOpcodeConstant($1, 0) 	}
-		| IDENT IDENT		{ addOpcodeLabel($1, $2) 	}
-		| IDENT NUM			{ addOpcodeConstant($1, $2)	}
-		| ORG NUM			{ setOrg($2) 				}
-		| WORDS nums		{ addWords($2) 				}
-;
-
-nums:	  /*empty*/			{ $$ = nil 					}
-		| nums NUM			{ $$ = append($1, $2) 		}
-;
-
-%%
-
+func (l *lexer) Error(e string) {
+	errorCodes = append(errorCodes, fmt.Sprintf("Line %d: %s", l.line, e))
+}

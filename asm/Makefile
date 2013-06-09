@@ -3,6 +3,7 @@ all: lex.yy.go y.go
 
 lex.yy.go: lexer.l
 	golex lexer.l
+	gofmt -w lex.yy.go
 
 y.go: parser.y
 	go tool yacc parser.y

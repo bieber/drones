@@ -17,44 +17,8 @@
 package asm
 
 import (
-	"bufio"
-	"fmt"
 	"strconv"
 )
-
-type lexer struct {
-	src     *bufio.Reader
-	buf     []byte
-	current byte
-	empty   bool
-	line    int
-}
-
-func newLexer(in *bufio.Reader) *lexer {
-	l := &lexer{src: in, line: 1}
-	if b, err := in.ReadByte(); err == nil {
-		l.current = b
-	}
-	return l
-}
-
-func (l *lexer) getc() byte {
-	if l.current != 0 {
-		l.buf = append(l.buf, l.current)
-		if l.current == '\n' {
-			l.line++
-		}
-	}
-	l.current = 0
-	if b, err := l.src.ReadByte(); err == nil {
-		l.current = b
-	}
-	return l.current
-}
-
-func (l *lexer) Error(e string) {
-	errorCodes = append(errorCodes, fmt.Sprintf("Line %d: %s", l.line, e))
-}
 
 func (l *lexer) Lex(lval *yySymType) int {
 	c := l.current
@@ -77,16 +41,18 @@ yystart1:
 		goto yyabort
 	case c == '%':
 		goto yystate4
+	case c == '-':
+		goto yystate13
 	case c == '0':
-		goto yystate8
+		goto yystate15
 	case c == '\n':
 		goto yystate3
 	case c == '\t' || c == '\r' || c == ' ':
 		goto yystate2
 	case c >= '1' && c <= '9':
-		goto yystate9
+		goto yystate14
 	case c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z':
-		goto yystate12
+		goto yystate18
 	}
 
 yystate2:
@@ -109,6 +75,8 @@ yystate4:
 		goto yyabort
 	case c == 'o':
 		goto yystate5
+	case c == 'w':
+		goto yystate8
 	}
 
 yystate5:
@@ -137,10 +105,8 @@ yystate8:
 	c = l.getc()
 	switch {
 	default:
-		goto yyrule4
-	case c == 'x':
-		goto yystate10
-	case c >= '0' && c <= '9':
+		goto yyabort
+	case c == 'o':
 		goto yystate9
 	}
 
@@ -148,9 +114,9 @@ yystate9:
 	c = l.getc()
 	switch {
 	default:
-		goto yyrule4
-	case c >= '0' && c <= '9':
-		goto yystate9
+		goto yyabort
+	case c == 'r':
+		goto yystate10
 	}
 
 yystate10:
@@ -158,7 +124,7 @@ yystate10:
 	switch {
 	default:
 		goto yyabort
-	case c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a' && c <= 'f':
+	case c == 'd':
 		goto yystate11
 	}
 
@@ -166,25 +132,76 @@ yystate11:
 	c = l.getc()
 	switch {
 	default:
-		goto yyrule4
-	case c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a' && c <= 'f':
-		goto yystate11
+		goto yyabort
+	case c == 's':
+		goto yystate12
 	}
 
 yystate12:
 	c = l.getc()
-	switch {
-	default:
-		goto yyrule6
-	case c == ':':
-		goto yystate13
-	case c >= '0' && c <= '9' || c >= 'A' && c <= 'Z' || c == '_' || c >= 'a' && c <= 'z':
-		goto yystate12
-	}
+	goto yyrule4
 
 yystate13:
 	c = l.getc()
-	goto yyrule5
+	switch {
+	default:
+		goto yyabort
+	case c >= '0' && c <= '9':
+		goto yystate14
+	}
+
+yystate14:
+	c = l.getc()
+	switch {
+	default:
+		goto yyrule5
+	case c >= '0' && c <= '9':
+		goto yystate14
+	}
+
+yystate15:
+	c = l.getc()
+	switch {
+	default:
+		goto yyrule5
+	case c == 'x':
+		goto yystate16
+	case c >= '0' && c <= '9':
+		goto yystate14
+	}
+
+yystate16:
+	c = l.getc()
+	switch {
+	default:
+		goto yyabort
+	case c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a' && c <= 'f':
+		goto yystate17
+	}
+
+yystate17:
+	c = l.getc()
+	switch {
+	default:
+		goto yyrule5
+	case c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a' && c <= 'f':
+		goto yystate17
+	}
+
+yystate18:
+	c = l.getc()
+	switch {
+	default:
+		goto yyrule7
+	case c == ':':
+		goto yystate19
+	case c >= '0' && c <= '9' || c >= 'A' && c <= 'Z' || c == '_' || c >= 'a' && c <= 'z':
+		goto yystate18
+	}
+
+yystate19:
+	c = l.getc()
+	goto yyrule6
 
 yyrule1: // [ \t\r]+
 	{
@@ -201,8 +218,14 @@ yyrule3: // %org
 	{
 
 		return ORG
+
 	}
-yyrule4: // {DECIMAL}|{HEX}
+yyrule4: // %words
+	{
+
+		return WORDS
+	}
+yyrule5: // -?{DECIMAL}|{HEX}
 	{
 
 		num, err := strconv.ParseInt(string(l.buf), 0, 16)
@@ -214,14 +237,14 @@ yyrule4: // {DECIMAL}|{HEX}
 		}
 		goto yystate0
 	}
-yyrule5: // {ID}:
+yyrule6: // {ID}:
 	{
 
-		lval.str = string(l.buf)
+		lval.str = string(l.buf[:len(l.buf)-1])
 		return LABEL
 
 	}
-yyrule6: // {ID}
+yyrule7: // {ID}
 	{
 
 		lval.str = string(l.buf)
