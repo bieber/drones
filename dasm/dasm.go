@@ -21,11 +21,59 @@ package main
 
 import (
 	"bufio"
+	"encoding/binary"
+	"errors"
+	"flag"
 	"fmt"
 	"github.com/bieber/drones/asm"
+	"io"
 	"os"
 )
 
 func main() {
-	fmt.Println(asm.Assemble(bufio.NewReader(os.Stdin)))
+	outPath := flag.String("o", "-", "Output file path.  Use - for stdout.")
+	flag.Parse()
+	var inPath string
+	if len(flag.Args()) == 0 {
+		inPath = "-"
+	} else if len(flag.Args()) == 1 {
+		inPath = flag.Args()[0]
+	} else {
+		die(errors.New("Too many arguments"))
+	}
+
+	var fin *bufio.Reader
+	var fout io.Writer
+	if inPath == "-" {
+		fin = bufio.NewReader(os.Stdin)
+	} else {
+		file, err := os.Open(inPath)
+		if err != nil {
+			die(err)
+		}
+		fin = bufio.NewReader(file)
+		defer file.Close()
+	}
+	if *outPath == "-" {
+		fout = os.Stdout
+	} else {
+		file, err := os.Create(*outPath)
+		if err != nil {
+			die(err)
+		}
+		defer file.Close()
+		fout = file
+	}
+
+	code, err := asm.Assemble(fin)
+	if err != nil {
+		die(err)
+	}
+	binary.Write(fout, binary.LittleEndian, uint16(len(code)))
+	binary.Write(fout, binary.LittleEndian, code)
+}
+
+func die(err error) {
+	fmt.Fprintln(os.Stderr, err.Error())
+	os.Exit(1)
 }
