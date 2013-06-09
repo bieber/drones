@@ -1,11 +1,11 @@
-
 //line parser.y:19
 package asm
+
 import __yyfmt__ "fmt"
+
 //line parser.y:19
-		
 //line parser.y:22
-type yySymType struct{
+type yySymType struct {
 	yys int
 	num uint16
 	str string
@@ -36,8 +36,6 @@ const yyErrCode = 2
 const yyMaxDepth = 200
 
 //line parser.y:60
-
-
 
 //line yacctab:1
 var yyExca = []int{
@@ -327,28 +325,44 @@ yydefault:
 
 	case 4:
 		//line parser.y:48
-		{ addLabel(yyS[yypt-0].str) 				}
+		{
+			addLabel(yyS[yypt-0].str)
+		}
 	case 5:
 		//line parser.y:49
-		{ addOpcodeConstant(yyS[yypt-0].str, 0) 	}
+		{
+			addOpcodeConstant(yyS[yypt-0].str, 0)
+		}
 	case 6:
 		//line parser.y:50
-		{ addOpcodeLabel(yyS[yypt-1].str, yyS[yypt-0].str) 	}
+		{
+			addOpcodeLabel(yyS[yypt-1].str, yyS[yypt-0].str)
+		}
 	case 7:
 		//line parser.y:51
-		{ addOpcodeConstant(yyS[yypt-1].str, yyS[yypt-0].num)	}
+		{
+			addOpcodeConstant(yyS[yypt-1].str, yyS[yypt-0].num)
+		}
 	case 8:
 		//line parser.y:52
-		{ setOrg(yyS[yypt-0].num) 				}
+		{
+			setOrg(yyS[yypt-0].num)
+		}
 	case 9:
 		//line parser.y:53
-		{ addWords(yyS[yypt-0].dat) 				}
+		{
+			addWords(yyS[yypt-0].dat)
+		}
 	case 10:
 		//line parser.y:56
-		{ yyVAL.dat = nil }
+		{
+			yyVAL.dat = nil
+		}
 	case 11:
 		//line parser.y:57
-		{ yyVAL.dat = append(yyS[yypt-1].dat, yyS[yypt-0].num) }
+		{
+			yyVAL.dat = append(yyS[yypt-1].dat, yyS[yypt-0].num)
+		}
 	}
 	goto yystack /* stack new state and value */
 }

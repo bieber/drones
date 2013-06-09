@@ -7,6 +7,7 @@ lex.yy.go: lexer.l
 
 y.go: parser.y
 	go tool yacc parser.y
+	gofmt -w y.go
 
 clean:
 	rm y.output y.go lex.yy.go
