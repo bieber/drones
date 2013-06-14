@@ -40,22 +40,29 @@ package asm
 
 %% /* Grammar */
 
-input:	  /*empty*/
-		| input NEWLINE
-		| input line NEWLINE
+input:		  /*empty*/
+			| input NEWLINE
+			| input line NEWLINE
 ;
 
-line:	  LABEL				{ addLabel($1) 				}
-		| IDENT				{ addOpcodeConstant($1, 0) 	}
-		| IDENT IDENT		{ addOpcodeLabel($1, $2) 	}
-		| IDENT NUM			{ addOpcodeConstant($1, $2)	}
-		| ORG NUM			{ setOrg($2) 				}
-		| WORDS nums		{ addWords($2) 				}
-;
+line:		  label_line
+			| non_label
+			| label_line non_label
+			;
+
+label_line:	  LABEL				{ addLabel($1)				}
+			;
+		
+non_label:	  IDENT				{ addOpcodeConstant($1, 0) 	}
+			| IDENT IDENT		{ addOpcodeLabel($1, $2) 	}
+			| IDENT NUM			{ addOpcodeConstant($1, $2)	}
+			| ORG NUM			{ setOrg($2) 				}
+			| WORDS nums		{ addWords($2) 				}
+			;
 
 nums:	  /*empty*/			{ $$ = nil 					}
 		| nums NUM			{ $$ = append($1, $2) 		}
-;
+		;
 
 %%
 

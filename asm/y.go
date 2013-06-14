@@ -35,7 +35,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line parser.y:60
+//line parser.y:67
 
 //line yacctab:1
 var yyExca = []int{
@@ -44,47 +44,47 @@ var yyExca = []int{
 	-2, 0,
 }
 
-const yyNprod = 12
+const yyNprod = 15
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 13
+const yyLast = 19
 
 var yyAct = []int{
 
-	2, 8, 4, 5, 6, 7, 10, 13, 9, 11,
-	3, 1, 12,
+	2, 10, 6, 7, 8, 9, 7, 8, 9, 13,
+	16, 12, 14, 5, 4, 3, 1, 15, 11,
 }
 var yyPact = []int{
 
-	-1000, -4, -1000, -3, -1000, 1, 4, -1000, -1000, -1000,
-	-1000, -1000, 2, -1000,
+	-1000, -4, -1000, -3, -1, -1000, -1000, 4, 7, -1000,
+	-1000, -1000, -1000, -1000, -1000, 5, -1000,
 }
 var yyPgo = []int{
 
-	0, 12, 11, 10,
+	0, 17, 16, 15, 14, 13,
 }
 var yyR1 = []int{
 
-	0, 2, 2, 2, 3, 3, 3, 3, 3, 3,
-	1, 1,
+	0, 2, 2, 2, 3, 3, 3, 4, 5, 5,
+	5, 5, 5, 1, 1,
 }
 var yyR2 = []int{
 
-	0, 0, 2, 3, 1, 1, 2, 2, 2, 2,
-	0, 2,
+	0, 0, 2, 3, 1, 1, 2, 1, 1, 2,
+	2, 2, 2, 0, 2,
 }
 var yyChk = []int{
 
-	-1000, -2, 4, -3, 6, 7, 8, 9, 4, 7,
-	5, 5, -1, 5,
+	-1000, -2, 4, -3, -4, -5, 6, 7, 8, 9,
+	4, -5, 7, 5, 5, -1, 5,
 }
 var yyDef = []int{
 
-	1, -2, 2, 0, 4, 5, 0, 10, 3, 6,
-	7, 8, 9, 11,
+	1, -2, 2, 0, 4, 5, 7, 8, 0, 13,
+	3, 6, 9, 10, 11, 12, 14,
 }
 var yyTok1 = []int{
 
@@ -323,43 +323,43 @@ yydefault:
 	// dummy call; replaced with literal code
 	switch yynt {
 
-	case 4:
-		//line parser.y:48
+	case 7:
+		//line parser.y:53
 		{
 			addLabel(yyS[yypt-0].str)
 		}
-	case 5:
-		//line parser.y:49
+	case 8:
+		//line parser.y:56
 		{
 			addOpcodeConstant(yyS[yypt-0].str, 0)
 		}
-	case 6:
-		//line parser.y:50
+	case 9:
+		//line parser.y:57
 		{
 			addOpcodeLabel(yyS[yypt-1].str, yyS[yypt-0].str)
 		}
-	case 7:
-		//line parser.y:51
+	case 10:
+		//line parser.y:58
 		{
 			addOpcodeConstant(yyS[yypt-1].str, yyS[yypt-0].num)
 		}
-	case 8:
-		//line parser.y:52
+	case 11:
+		//line parser.y:59
 		{
 			setOrg(yyS[yypt-0].num)
 		}
-	case 9:
-		//line parser.y:53
+	case 12:
+		//line parser.y:60
 		{
 			addWords(yyS[yypt-0].dat)
 		}
-	case 10:
-		//line parser.y:56
+	case 13:
+		//line parser.y:63
 		{
 			yyVAL.dat = nil
 		}
-	case 11:
-		//line parser.y:57
+	case 14:
+		//line parser.y:64
 		{
 			yyVAL.dat = append(yyS[yypt-1].dat, yyS[yypt-0].num)
 		}

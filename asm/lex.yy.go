@@ -39,20 +39,22 @@ yystart1:
 	switch {
 	default:
 		goto yyabort
-	case c == '%':
+	case c == '#':
 		goto yystate4
+	case c == '%':
+		goto yystate6
 	case c == '-':
-		goto yystate13
-	case c == '0':
 		goto yystate15
+	case c == '0':
+		goto yystate17
 	case c == '\n':
 		goto yystate3
 	case c == '\t' || c == '\r' || c == ' ':
 		goto yystate2
 	case c >= '1' && c <= '9':
-		goto yystate14
+		goto yystate16
 	case c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z':
-		goto yystate18
+		goto yystate20
 	}
 
 yystate2:
@@ -66,65 +68,62 @@ yystate2:
 
 yystate3:
 	c = l.getc()
-	goto yyrule2
+	goto yyrule3
 
 yystate4:
 	c = l.getc()
 	switch {
 	default:
 		goto yyabort
-	case c == 'o':
+	case c == '\n':
 		goto yystate5
-	case c == 'w':
-		goto yystate8
+	case c >= '\x01' && c <= '\t' || c >= '\v' && c <= 'ÿ':
+		goto yystate4
 	}
 
 yystate5:
 	c = l.getc()
-	switch {
-	default:
-		goto yyabort
-	case c == 'r':
-		goto yystate6
-	}
+	goto yyrule2
 
 yystate6:
 	c = l.getc()
 	switch {
 	default:
 		goto yyabort
-	case c == 'g':
+	case c == 'o':
 		goto yystate7
+	case c == 'w':
+		goto yystate10
 	}
 
 yystate7:
 	c = l.getc()
-	goto yyrule3
+	switch {
+	default:
+		goto yyabort
+	case c == 'r':
+		goto yystate8
+	}
 
 yystate8:
 	c = l.getc()
 	switch {
 	default:
 		goto yyabort
-	case c == 'o':
+	case c == 'g':
 		goto yystate9
 	}
 
 yystate9:
 	c = l.getc()
-	switch {
-	default:
-		goto yyabort
-	case c == 'r':
-		goto yystate10
-	}
+	goto yyrule4
 
 yystate10:
 	c = l.getc()
 	switch {
 	default:
 		goto yyabort
-	case c == 'd':
+	case c == 'o':
 		goto yystate11
 	}
 
@@ -133,75 +132,93 @@ yystate11:
 	switch {
 	default:
 		goto yyabort
-	case c == 's':
+	case c == 'r':
 		goto yystate12
 	}
 
 yystate12:
 	c = l.getc()
-	goto yyrule4
+	switch {
+	default:
+		goto yyabort
+	case c == 'd':
+		goto yystate13
+	}
 
 yystate13:
 	c = l.getc()
 	switch {
 	default:
 		goto yyabort
-	case c >= '0' && c <= '9':
+	case c == 's':
 		goto yystate14
 	}
 
 yystate14:
 	c = l.getc()
-	switch {
-	default:
-		goto yyrule5
-	case c >= '0' && c <= '9':
-		goto yystate14
-	}
+	goto yyrule5
 
 yystate15:
 	c = l.getc()
 	switch {
 	default:
-		goto yyrule5
-	case c == 'x':
-		goto yystate16
+		goto yyabort
 	case c >= '0' && c <= '9':
-		goto yystate14
+		goto yystate16
 	}
 
 yystate16:
 	c = l.getc()
 	switch {
 	default:
-		goto yyabort
-	case c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a' && c <= 'f':
-		goto yystate17
+		goto yyrule6
+	case c >= '0' && c <= '9':
+		goto yystate16
 	}
 
 yystate17:
 	c = l.getc()
 	switch {
 	default:
-		goto yyrule5
-	case c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a' && c <= 'f':
-		goto yystate17
+		goto yyrule6
+	case c == 'x':
+		goto yystate18
+	case c >= '0' && c <= '9':
+		goto yystate16
 	}
 
 yystate18:
 	c = l.getc()
 	switch {
 	default:
-		goto yyrule7
-	case c == ':':
+		goto yyabort
+	case c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a' && c <= 'f':
 		goto yystate19
-	case c >= '0' && c <= '9' || c >= 'A' && c <= 'Z' || c == '_' || c >= 'a' && c <= 'z':
-		goto yystate18
 	}
 
 yystate19:
 	c = l.getc()
-	goto yyrule6
+	switch {
+	default:
+		goto yyrule6
+	case c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a' && c <= 'f':
+		goto yystate19
+	}
+
+yystate20:
+	c = l.getc()
+	switch {
+	default:
+		goto yyrule8
+	case c == ':':
+		goto yystate21
+	case c >= '0' && c <= '9' || c >= 'A' && c <= 'Z' || c == '_' || c >= 'a' && c <= 'z':
+		goto yystate20
+	}
+
+yystate21:
+	c = l.getc()
+	goto yyrule7
 
 yyrule1: // [ \t\r]+
 	{
@@ -209,23 +226,28 @@ yyrule1: // [ \t\r]+
 		/* ignore */
 		goto yystate0
 	}
-yyrule2: // \n
+yyrule2: // #[^\n]*\n
+	{
+		/* comment */
+		return NEWLINE
+	}
+yyrule3: // \n
 	{
 
 		return NEWLINE
 	}
-yyrule3: // %org
+yyrule4: // %org
 	{
 
 		return ORG
 
 	}
-yyrule4: // %words
+yyrule5: // %words
 	{
 
 		return WORDS
 	}
-yyrule5: // -?{DECIMAL}|{HEX}
+yyrule6: // -?{DECIMAL}|{HEX}
 	{
 
 		num, err := strconv.ParseInt(string(l.buf), 0, 16)
@@ -237,14 +259,14 @@ yyrule5: // -?{DECIMAL}|{HEX}
 		}
 		goto yystate0
 	}
-yyrule6: // {ID}:
+yyrule7: // {ID}:
 	{
 
 		lval.str = string(l.buf[:len(l.buf)-1])
 		return LABEL
 
 	}
-yyrule7: // {ID}
+yyrule8: // {ID}
 	{
 
 		lval.str = string(l.buf)

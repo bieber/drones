@@ -41,6 +41,10 @@ ID		[a-zA-Z][a-zA-Z0-9_]*
 
 [ \t\r]+
 	/* ignore */
+
+#[^\n]*\n	/* comment */
+	return NEWLINE
+
 \n
 	return NEWLINE
 

@@ -14,13 +14,15 @@ state 1
 
 	$end  accept
 	NEWLINE  shift 2
-	LABEL  shift 4
-	IDENT  shift 5
-	ORG  shift 6
-	WORDS  shift 7
+	LABEL  shift 6
+	IDENT  shift 7
+	ORG  shift 8
+	WORDS  shift 9
 	.  error
 
 	line  goto 3
+	label_line  goto 4
+	non_label  goto 5
 
 state 2
 	input:  input NEWLINE.    (2)
@@ -31,88 +33,111 @@ state 2
 state 3
 	input:  input line.NEWLINE 
 
-	NEWLINE  shift 8
+	NEWLINE  shift 10
 	.  error
 
 
 state 4
-	line:  LABEL.    (4)
+	line:  label_line.    (4)
+	line:  label_line.non_label 
 
+	IDENT  shift 7
+	ORG  shift 8
+	WORDS  shift 9
 	.  reduce 4 (src line 48)
 
+	non_label  goto 11
 
 state 5
-	line:  IDENT.    (5)
-	line:  IDENT.IDENT 
-	line:  IDENT.NUM 
+	line:  non_label.    (5)
 
-	NUM  shift 10
-	IDENT  shift 9
 	.  reduce 5 (src line 49)
 
 
 state 6
-	line:  ORG.NUM 
+	label_line:  LABEL.    (7)
 
-	NUM  shift 11
-	.  error
+	.  reduce 7 (src line 53)
 
 
 state 7
-	line:  WORDS.nums 
-	nums: .    (10)
+	non_label:  IDENT.    (8)
+	non_label:  IDENT.IDENT 
+	non_label:  IDENT.NUM 
 
-	.  reduce 10 (src line 56)
+	NUM  shift 13
+	IDENT  shift 12
+	.  reduce 8 (src line 56)
 
-	nums  goto 12
 
 state 8
+	non_label:  ORG.NUM 
+
+	NUM  shift 14
+	.  error
+
+
+state 9
+	non_label:  WORDS.nums 
+	nums: .    (13)
+
+	.  reduce 13 (src line 63)
+
+	nums  goto 15
+
+state 10
 	input:  input line NEWLINE.    (3)
 
 	.  reduce 3 (src line 45)
 
 
-state 9
-	line:  IDENT IDENT.    (6)
+state 11
+	line:  label_line non_label.    (6)
 
 	.  reduce 6 (src line 50)
 
 
-state 10
-	line:  IDENT NUM.    (7)
-
-	.  reduce 7 (src line 51)
-
-
-state 11
-	line:  ORG NUM.    (8)
-
-	.  reduce 8 (src line 52)
-
-
 state 12
-	line:  WORDS nums.    (9)
-	nums:  nums.NUM 
+	non_label:  IDENT IDENT.    (9)
 
-	NUM  shift 13
-	.  reduce 9 (src line 53)
+	.  reduce 9 (src line 57)
 
 
 state 13
-	nums:  nums NUM.    (11)
+	non_label:  IDENT NUM.    (10)
 
-	.  reduce 11 (src line 57)
+	.  reduce 10 (src line 58)
 
 
-10 terminals, 4 nonterminals
-12 grammar rules, 14/2000 states
+state 14
+	non_label:  ORG NUM.    (11)
+
+	.  reduce 11 (src line 59)
+
+
+state 15
+	non_label:  WORDS nums.    (12)
+	nums:  nums.NUM 
+
+	NUM  shift 16
+	.  reduce 12 (src line 60)
+
+
+state 16
+	nums:  nums NUM.    (14)
+
+	.  reduce 14 (src line 64)
+
+
+10 terminals, 6 nonterminals
+15 grammar rules, 17/2000 states
 0 shift/reduce, 0 reduce/reduce conflicts reported
-53 working sets used
-memory: parser 2/30000
+55 working sets used
+memory: parser 5/30000
 0 extra closures
-10 shift entries, 1 exceptions
-3 goto entries
+13 shift entries, 1 exceptions
+6 goto entries
 0 entries saved by goto default
-Optimizer space used: output 13/30000
-13 table entries, 0 zero
-maximum spread: 9, maximum offset: 5
+Optimizer space used: output 19/30000
+19 table entries, 0 zero
+maximum spread: 9, maximum offset: 7
