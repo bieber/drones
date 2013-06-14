@@ -15,63 +15,86 @@
  * along with drones.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// vmtest runs test binaries through the VM and debugs along the way.
+/*
+ vmtest runs a drones VM binary and provides it with a primitive terminal.
+
+ Console I/O is conducted through buses 0-4.  Setting bus 1 to a non-zero value
+ will print the low-order byte of bus 0 to the terminal, after which it will be
+ set back to zero.
+
+ Console input is provided one byte at a time in the low-order byte of bus 2,
+ with bus 3 used as a flag to notify the VM that a new byte is available.  The
+ VM should set it to zero to notify the console that it's ready for more input.
+
+ Setting bus 4 to a non-zero value will terminate the program.
+*/
 package main
 
 import (
+	"bufio"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"github.com/bieber/drones/vm"
+	"os"
+	"runtime"
 )
 
 func main() {
-	v := vm.New(200, 3)
-	v.LoadOpcodes(
-		[]vm.Opcode{
-			vm.Ldm, 52,
-			vm.Wb, 0,
-			vm.Ldc, 1,
-			vm.Wb, 1,
-			vm.Ldm, 53,
-			vm.Wb, 0,
-			vm.Ldc, 1,
-			vm.Wb, 1,
-			vm.Ldm, 54,
-			vm.Wb, 0,
-			vm.Ldc, 1,
-			vm.Wb, 1,
-			vm.Ldm, 55,
-			vm.Wb, 0,
-			vm.Ldc, 1,
-			vm.Wb, 1,
-			vm.Ldm, 56,
-			vm.Wb, 0,
-			vm.Ldc, 1,
-			vm.Wb, 1,
-			vm.Ldm, 57,
-			vm.Wb, 0,
-			vm.Ldc, 1,
-			vm.Wb, 1,
-			vm.Ldc, 1,
-			vm.Wb, 2,
-			vm.Opcode(binary.LittleEndian.Uint16([]byte("He"))),
-			vm.Opcode(binary.LittleEndian.Uint16([]byte("ll"))),
-			vm.Opcode(binary.LittleEndian.Uint16([]byte("o "))),
-			vm.Opcode(binary.LittleEndian.Uint16([]byte("Wo"))),
-			vm.Opcode(binary.LittleEndian.Uint16([]byte("rl"))),
-			vm.Opcode(binary.LittleEndian.Uint16([]byte("d\n"))),
-		},
-	)
+	if len(os.Args) != 2 {
+		die(errors.New("Usage: vmtest [binary_file]"))
+	}
+	file, err := os.Open(os.Args[1])
+	if err != nil {
+		die(err)
+	}
+	defer file.Close()
+	stdin := bufio.NewReader(os.Stdin)
+	stdout := bufio.NewWriter(os.Stdout)
+
+	v := vm.New(0xffff, 5)
+	err = v.LoadBinary(file)
+	if err != nil {
+		die(err)
+	}
+
+	bytesIn := make(chan byte)
+	go readBytes(stdin, bytesIn)
 	for {
-		v.Clock()
-		if v.Buses[1] != 0 {
-			v.Buses[1] = 0
-			chars := make([]byte, 2)
-			binary.LittleEndian.PutUint16(chars, v.Buses[0])
-			fmt.Print(string(chars))
+		buf := make([]byte, 2)
+		if v.Buses[3] == 0 {
+			select {
+			case c := (<-bytesIn):
+				buf[0] = c
+				v.Buses[2] = binary.LittleEndian.Uint16(buf)
+				v.Buses[3] = 1
+			default:
+			}
 		}
-		if v.Buses[2] != 0 {
+		if v.Buses[1] != 0 {
+			binary.LittleEndian.PutUint16(buf, v.Buses[0])
+			stdout.WriteByte(buf[0])
+			stdout.Flush()
+			v.Buses[1] = 0
+		}
+		if v.Buses[4] != 0 {
 			break
 		}
+		v.Clock()
+		runtime.Gosched()
 	}
+}
+
+func readBytes(in *bufio.Reader, out chan byte) {
+	for {
+		c, err := in.ReadByte()
+		if err == nil {
+			out <- c
+		}
+	}
+}
+
+func die(err error) {
+	fmt.Fprintln(os.Stderr, err.Error())
+	os.Exit(1)
 }
