@@ -331,7 +331,7 @@ yydefault:
 	case 8:
 		//line parser.y:56
 		{
-			addOpcodeConstant(yyS[yypt-0].str, 0)
+			addOpcodeSolo(yyS[yypt-0].str)
 		}
 	case 9:
 		//line parser.y:57

@@ -53,15 +53,15 @@ line:		  label_line
 label_line:	  LABEL				{ addLabel($1)				}
 			;
 		
-non_label:	  IDENT				{ addOpcodeConstant($1, 0) 	}
+non_label:	  IDENT				{ addOpcodeSolo($1) 		}
 			| IDENT IDENT		{ addOpcodeLabel($1, $2) 	}
 			| IDENT NUM			{ addOpcodeConstant($1, $2)	}
 			| ORG NUM			{ setOrg($2) 				}
 			| WORDS nums		{ addWords($2) 				}
 			;
 
-nums:	  /*empty*/			{ $$ = nil 					}
-		| nums NUM			{ $$ = append($1, $2) 		}
+nums:	  /*empty*/				{ $$ = nil 					}
+		| nums NUM				{ $$ = append($1, $2) 		}
 		;
 
 %%

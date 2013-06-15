@@ -131,6 +131,14 @@ func setOrg(addr uint16) {
 	setAddress(addr)
 }
 
+func addOpcodeSolo(opcode string) {
+	ops = append(
+		ops,
+		opInfo{op: opcode, address: address, num: 0, line: lex.line - 1},
+	)
+	setAddress(address + 2)
+}
+
 func addOpcodeLabel(opcode string, label string) {
 	ops = append(
 		ops,
