@@ -48,15 +48,21 @@ type opInfo struct {
 	line    int
 }
 
-var address uint16 = 0
-var maxAddress uint16 = 0
-var labels map[string]labelInfo = make(map[string]labelInfo)
+var address uint16
+var maxAddress uint16
+var labels map[string]labelInfo
 var words []wordInfo
 var ops []opInfo
 
 // Assemble parses an assembly language program from in and returns the
 // assembled binary, or an error if something goes wrong.
 func Assemble(in *bufio.Reader) ([]uint16, error) {
+	address = 0
+	maxAddress = 0
+	labels = make(map[string]labelInfo)
+	words = nil
+	ops = nil
+
 	lex = newLexer(in)
 	if parse, code := yyParse(lex), buildCode(); parse == 0 && code != nil {
 		return code, nil
