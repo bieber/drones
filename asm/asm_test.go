@@ -75,3 +75,18 @@ label3: jmp label2
 	c.Assert(binary[23], Equals, uint16(8))
 	c.Assert(binary[25], Equals, uint16(22))
 }
+
+func (s *suite) TestWords(c *C) {
+	code := `
+%words 50 0x10
+%org 20
+%words 10
+`
+	binary, err := Assemble(bufio.NewReader(strings.NewReader(code)))
+
+	c.Assert(err, IsNil)
+	c.Assert(binary, NotNil)
+	c.Assert(binary[0], Equals, uint16(50))
+	c.Assert(binary[1], Equals, uint16(16))
+	c.Assert(binary[20], Equals, uint16(10))
+}
