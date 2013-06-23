@@ -34,6 +34,7 @@ import (
 	"bufio"
 	"encoding/binary"
 	"errors"
+	"flag"
 	"fmt"
 	"github.com/bieber/drones/vm"
 	"os"
@@ -41,10 +42,22 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 2 {
-		die(errors.New("Usage: vmtest [binary_file]"))
+	verbose := flag.Bool(
+		"v",
+		false,
+		"Display detailed VM state at each clock cycle.",
+	)
+	memSize := flag.Uint(
+		"m",
+		0xffff,
+		"Memory size in 16-bit words.",
+	)
+	flag.Parse()
+
+	if len(flag.Args()) != 1 {
+		die(errors.New("No input file."))
 	}
-	file, err := os.Open(os.Args[1])
+	file, err := os.Open(flag.Args()[0])
 	if err != nil {
 		die(err)
 	}
@@ -52,7 +65,7 @@ func main() {
 	stdin := bufio.NewReader(os.Stdin)
 	stdout := bufio.NewWriter(os.Stdout)
 
-	v := vm.New(0xffff, 5)
+	v := vm.New(uint16(*memSize), 5)
 	err = v.LoadBinary(file)
 	if err != nil {
 		die(err)
@@ -61,6 +74,9 @@ func main() {
 	bytesIn := make(chan byte)
 	go readBytes(stdin, bytesIn)
 	for {
+		if *verbose {
+			fmt.Println(v.Debug())
+		}
 		buf := make([]byte, 2)
 		if v.Buses[3] == 0 {
 			select {

@@ -46,10 +46,7 @@ and then executes the opcode with the argument.  Note that _all_
 opcodes take up 2 16-bit words in memory, for those which don't use
 arguments the content of the second word is irrelevant.  A clever
 programmer or compiler may re-use those spaces in memory.  Execution
-continues in this way for as long as the machine runs.  In the event
-that something goes horrible wrong (divide by zero or attempt to
-access out-of-bounds memory, for instance), the instruction point is
-reset back to 0 and execution continues.
+continues in this way for as long as the machine runs.
 
 ### Stack Frame
 

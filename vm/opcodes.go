@@ -17,6 +17,8 @@
 
 package vm
 
+import "fmt"
+
 // Opcode represents the executable opcodes for the VM.
 type Opcode uint
 
@@ -171,14 +173,6 @@ func (vm *VM) ClockN(n int) {
 // located at memory location ip + 1 used as an argument.  See the
 // Opcode constants for more information.
 func (vm *VM) Clock() {
-	// If something goes wrong reset ip to 0 to simulate a machine
-	// reset.
-	defer func() {
-		if recover() != nil {
-			vm.ip = 0
-		}
-	}()
-
 	opcode := vm.mem[vm.ip]
 	arg := vm.mem[vm.ip+1]
 	vm.ip += 2
@@ -303,7 +297,7 @@ func (vm *VM) Clock() {
 		vm.a = vmBool(vm.a != vm.b)
 
 	default:
-		panic("vm: Invalid opcode")
+		panic(fmt.Sprintf("vm: Invalid opcode %d", opcode))
 	}
 }
 
