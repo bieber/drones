@@ -19,15 +19,24 @@
 package main
 
 import (
+	"github.com/bieber/drones/res"
 	"github.com/neagix/Go-SDL/sdl"
+	"github.com/neagix/Go-SDL/ttf"
+	"path/filepath"
 	"time"
 )
 
 func main() {
+	res.WriteResources(ResPath)
+
 	if sdl.Init(sdl.INIT_VIDEO) != 0 {
 		panic(sdl.GetError())
 	}
 	defer sdl.Quit()
+	if ttf.Init() != 0 {
+		panic("Error initializing SDL TTF")
+	}
+	defer ttf.Quit()
 
 	screen := sdl.SetVideoMode(ScreenWidth, ScreenHeight, 32, 0)
 	if screen == nil {
@@ -35,19 +44,25 @@ func main() {
 	}
 	sdl.WM_SetCaption("Drones", "")
 
-	layerStack := make(LayerStack, 0, 10)
+	layerStack := LayerStack{
+		&MainMenu{
+			cursor: sdl.Rect{X: 0, Y: 0, W: 10, H: 10},
+			titleFont: ttf.OpenFont(
+				filepath.Join(ResPath, "FreeSansBold.ttf"),
+				30,
+			),
+		},
+	}
 	frameTime := time.Second / time.Duration(FPS)
 	tickTimer := time.NewTicker(frameTime)
 
 	for run := true; run; {
 		select {
 		case <-tickTimer.C:
-			toRemove := layerStack.Tick(frameTime)
-			clear := len(toRemove) != 0
-			if clear {
+			if toRemove := layerStack.Tick(frameTime); len(toRemove) != 0 {
 				layerStack.RemoveLayers(toRemove)
 			}
-			layerStack.Draw(screen, clear)
+			layerStack.Draw(screen)
 		case event := <-sdl.Events:
 			layerStack.HandleEvent(event)
 			switch event.(type) {

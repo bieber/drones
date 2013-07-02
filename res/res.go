@@ -15,19 +15,34 @@
  * along with drones.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+// Package res contains static resources compiled into Go functions
+// with go-bindata.
+package res
 
-// ScreenWidth and ScreenHeight determine the screen dimensions.
-const (
-	ScreenWidth  int = 640
-	ScreenHeight int = 480
+import (
+	"os"
+	"path/filepath"
 )
 
-// FPS is the desired framerate.
-const FPS int = 30
+var files map[string]func() []byte = map[string]func() []byte{
+	"FreeSansBold.ttf": FreeSansBold,
+}
 
-// ClockRate is the desired CPU cycles/second for VMs.
-const ClockRate int = 1000
+func WriteResources(dir string) {
+	err := os.Mkdir(dir, 0744)
+	if err != nil && !os.IsExist(err) {
+		panic(err)
+	}
 
-// ResPath is the directory to install resources to on startup.
-const ResPath string = ".resources"
+	for path, f := range files {
+		file, err := os.Create(filepath.Join(dir, path))
+		if err != nil {
+			panic(err)
+		}
+		_, err = file.Write(f())
+		if err != nil {
+			panic(err)
+		}
+		file.Close()
+	}
+}

@@ -24,10 +24,9 @@ import (
 
 // Layer represents a type that can present a layer on the screen.
 type Layer interface {
-	// Draw prompts the layer to draw to the screen and return a slice
-	// of rectangles bounding the dirtied area.  The top parameter
+	// Draw prompts the layer to draw to the screen. The top parameter
 	// specifies whether the layer is at the top of the stack.
-	Draw(screen *sdl.Surface, top bool) []sdl.Rect
+	Draw(screen *sdl.Surface, top bool)
 	// Tick prompts the layer to advance its state by the specified
 	// duration.  Returning false will kill the layer.
 	Tick(elapsed time.Duration) bool
@@ -50,26 +49,17 @@ func (stack LayerStack) HandleEvent(event interface{}) bool {
 }
 
 // Draw directs each layer, starting from the bottom, to draw to the
-// screen, and then updates the necessary parts of the screen.  Set
-// the clear flag if a layer has been removed and the screen needs to
-// be completely redrawn.
-func (stack LayerStack) Draw(screen *sdl.Surface, clear bool) {
-	rects := make([]sdl.Rect, 0, 10)
-	if clear {
-		screen.FillRect(
-			&sdl.Rect{X: 0, Y: 0, W: uint16(screen.W), H: uint16(screen.H)},
-			0,
-		)
-	}
+// screen, and then updates the necessary parts of the screen.
+func (stack LayerStack) Draw(screen *sdl.Surface) {
+	screen.FillRect(
+		&sdl.Rect{X: 0, Y: 0, W: uint16(screen.W), H: uint16(screen.H)},
+		0,
+	)
 	for i, layer := range stack {
 		top := i == len(stack)-1
-		rects = append(rects, layer.Draw(screen, top)...)
+		layer.Draw(screen, top)
 	}
-	if clear {
-		screen.Flip()
-	} else {
-		screen.UpdateRects(rects)
-	}
+	screen.Flip()
 }
 
 // Tick executes a tick on each layer, and returns a list of layer
