@@ -19,15 +19,16 @@
 package main
 
 import (
+	"github.com/bieber/drones/fonts"
 	"github.com/bieber/drones/res"
 	"github.com/neagix/Go-SDL/sdl"
 	"github.com/neagix/Go-SDL/ttf"
-	"path/filepath"
 	"time"
 )
 
 func main() {
 	res.WriteResources(ResPath)
+	fonts.SetFontsPath(ResPath)
 
 	if sdl.Init(sdl.INIT_VIDEO) != 0 {
 		panic(sdl.GetError())
@@ -45,13 +46,7 @@ func main() {
 	sdl.WM_SetCaption("Drones", "")
 
 	layerStack := LayerStack{
-		&MainMenu{
-			cursor: sdl.Rect{X: 0, Y: 0, W: 10, H: 10},
-			titleFont: ttf.OpenFont(
-				filepath.Join(ResPath, "FreeSansBold.ttf"),
-				30,
-			),
-		},
+		&MainMenu{cursor: sdl.Rect{X: 0, Y: 0, W: 10, H: 10}},
 	}
 	frameTime := time.Second / time.Duration(FPS)
 	tickTimer := time.NewTicker(frameTime)

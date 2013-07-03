@@ -18,24 +18,23 @@
 package main
 
 import (
+	"github.com/bieber/drones/fonts"
 	"github.com/neagix/Go-SDL/sdl"
-	"github.com/neagix/Go-SDL/ttf"
 	"time"
 )
 
 type MainMenu struct {
-	cursor    sdl.Rect
-	titleFont *ttf.Font
+	cursor sdl.Rect
 }
 
 func (m *MainMenu) Draw(screen *sdl.Surface, top bool) {
 	screen.FillRect(&m.cursor, 0x0000ff00)
-	width, height, _ := m.titleFont.SizeText("Drones")
-	text := ttf.RenderText_Shaded(
-		m.titleFont,
+	width, height, _ := fonts.Size("Drones", "sans_bold", 25)
+	text := fonts.BlendedText(
 		"Drones",
+		"sans_bold",
+		25,
 		sdl.Color{255, 255, 255, 0},
-		sdl.Color{0, 0, 0, 0},
 	)
 	screen.Blit(
 		&sdl.Rect{
