@@ -19,9 +19,10 @@
 package main
 
 import (
-	"github.com/bieber/drones/ui"
+	"github.com/bieber/drones/drones/mainmenu"
 	"github.com/bieber/drones/fonts"
 	"github.com/bieber/drones/res"
+	"github.com/bieber/drones/ui"
 	"github.com/neagix/Go-SDL/sdl"
 	"github.com/neagix/Go-SDL/ttf"
 	"time"
@@ -46,9 +47,7 @@ func main() {
 	}
 	sdl.WM_SetCaption("Drones", "")
 
-	layerStack := ui.LayerStack{
-		&MainMenu{cursor: sdl.Rect{X: 0, Y: 0, W: 10, H: 10}},
-	}
+	layerStack := ui.LayerStack{mainmenu.New()}
 	frameTime := time.Second / time.Duration(FPS)
 	tickTimer := time.NewTicker(frameTime)
 
