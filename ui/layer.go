@@ -15,7 +15,8 @@
  * along with drones.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+// Package ui defines some primitive UI elements.
+package ui
 
 import (
 	"github.com/neagix/Go-SDL/sdl"
