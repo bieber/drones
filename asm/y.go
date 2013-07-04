@@ -1,10 +1,10 @@
-//line parser.y:19
+//line parser.y:21
 package asm
 
 import __yyfmt__ "fmt"
 
-//line parser.y:19
-//line parser.y:22
+//line parser.y:21
+//line parser.y:24
 type yySymType struct {
 	yys int
 	num uint16
@@ -35,7 +35,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line parser.y:67
+//line parser.y:69
 
 //line yacctab:1
 var yyExca = []int{
@@ -324,42 +324,42 @@ yydefault:
 	switch yynt {
 
 	case 7:
-		//line parser.y:53
+		//line parser.y:55
 		{
 			addLabel(yyS[yypt-0].str)
 		}
 	case 8:
-		//line parser.y:56
+		//line parser.y:58
 		{
 			addOpcodeSolo(yyS[yypt-0].str)
 		}
 	case 9:
-		//line parser.y:57
+		//line parser.y:59
 		{
 			addOpcodeLabel(yyS[yypt-1].str, yyS[yypt-0].str)
 		}
 	case 10:
-		//line parser.y:58
+		//line parser.y:60
 		{
 			addOpcodeConstant(yyS[yypt-1].str, yyS[yypt-0].num)
 		}
 	case 11:
-		//line parser.y:59
+		//line parser.y:61
 		{
 			setOrg(yyS[yypt-0].num)
 		}
 	case 12:
-		//line parser.y:60
+		//line parser.y:62
 		{
 			addWords(yyS[yypt-0].dat)
 		}
 	case 13:
-		//line parser.y:63
+		//line parser.y:65
 		{
 			yyVAL.dat = nil
 		}
 	case 14:
-		//line parser.y:64
+		//line parser.y:66
 		{
 			yyVAL.dat = append(yyS[yypt-1].dat, yyS[yypt-0].num)
 		}

@@ -1,4 +1,6 @@
 /*
+ * Copyright 2013, Robert Bieber
+ *
  * This file is part of drones.
  *
  * drones is free software: you can redistribute it and/or modify it

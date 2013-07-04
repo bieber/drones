@@ -3,7 +3,7 @@ state 0
 	$accept: .input $end 
 	input: .    (1)
 
-	.  reduce 1 (src line 43)
+	.  reduce 1 (src line 45)
 
 	input  goto 1
 
@@ -27,7 +27,7 @@ state 1
 state 2
 	input:  input NEWLINE.    (2)
 
-	.  reduce 2 (src line 44)
+	.  reduce 2 (src line 46)
 
 
 state 3
@@ -44,20 +44,20 @@ state 4
 	IDENT  shift 7
 	ORG  shift 8
 	WORDS  shift 9
-	.  reduce 4 (src line 48)
+	.  reduce 4 (src line 50)
 
 	non_label  goto 11
 
 state 5
 	line:  non_label.    (5)
 
-	.  reduce 5 (src line 49)
+	.  reduce 5 (src line 51)
 
 
 state 6
 	label_line:  LABEL.    (7)
 
-	.  reduce 7 (src line 53)
+	.  reduce 7 (src line 55)
 
 
 state 7
@@ -67,7 +67,7 @@ state 7
 
 	NUM  shift 13
 	IDENT  shift 12
-	.  reduce 8 (src line 56)
+	.  reduce 8 (src line 58)
 
 
 state 8
@@ -81,38 +81,38 @@ state 9
 	non_label:  WORDS.nums 
 	nums: .    (13)
 
-	.  reduce 13 (src line 63)
+	.  reduce 13 (src line 65)
 
 	nums  goto 15
 
 state 10
 	input:  input line NEWLINE.    (3)
 
-	.  reduce 3 (src line 45)
+	.  reduce 3 (src line 47)
 
 
 state 11
 	line:  label_line non_label.    (6)
 
-	.  reduce 6 (src line 50)
+	.  reduce 6 (src line 52)
 
 
 state 12
 	non_label:  IDENT IDENT.    (9)
 
-	.  reduce 9 (src line 57)
+	.  reduce 9 (src line 59)
 
 
 state 13
 	non_label:  IDENT NUM.    (10)
 
-	.  reduce 10 (src line 58)
+	.  reduce 10 (src line 60)
 
 
 state 14
 	non_label:  ORG NUM.    (11)
 
-	.  reduce 11 (src line 59)
+	.  reduce 11 (src line 61)
 
 
 state 15
@@ -120,13 +120,13 @@ state 15
 	nums:  nums.NUM 
 
 	NUM  shift 16
-	.  reduce 12 (src line 60)
+	.  reduce 12 (src line 62)
 
 
 state 16
 	nums:  nums NUM.    (14)
 
-	.  reduce 14 (src line 64)
+	.  reduce 14 (src line 66)
 
 
 10 terminals, 6 nonterminals
