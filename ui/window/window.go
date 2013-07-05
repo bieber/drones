@@ -25,55 +25,87 @@ import (
 	"github.com/neagix/Go-SDL/sdl"
 )
 
+// Defaults
+var bgColor sdl.Color = sdl.Color{150, 150, 150, 0}
+var borderColor sdl.Color = sdl.Color{100, 100, 100, 0}
+
+const borderWidth = 5
+
 // Window draws a rectangular area on the screen with a border and
 // renders child elements.
 type Window struct {
-	x           uint
-	y           uint
-	W           uint
-	H           uint
-	BorderWidth uint
+	children []ui.Widget
+
+	// Window position and size.
+	X int16
+	Y int16
+	W uint16
+	H uint16
+
+	// Width of the border around the window.
+	BorderWidth uint16
+
+	// Colors of the background and border.
 	BGColor     sdl.Color
 	BorderColor sdl.Color
-	// Callback to execute if the window intercepts an escape keypress.
+
+	//Callback to execute if the window intercepts an escape keypress.
 	OnEscape func()
 }
 
-func New(x, y, w, h, borderWidth uint, bgColor, borderColor sdl.Color) *Window {
+func New(x, y int16, w, h uint16) *Window {
 	return &Window{
-		x:           x,
-		y:           y,
+		X:           x,
+		Y:           y,
 		W:           w,
 		H:           h,
 		BorderWidth: borderWidth,
 		BGColor:     bgColor,
 		BorderColor: borderColor,
 		OnEscape:    nil,
+		children:    make([]ui.Widget, 0, 5),
 	}
+}
+
+// Adds a child element to the Window at the desired relative
+// coordinates.
+func (w *Window) AddChild(child ui.Widget, x, y int16) {
+	w.children = append(w.children, child)
+	child.SetPos(w.X+x, w.Y+y)
 }
 
 func (w *Window) Draw(screen *sdl.Surface) {
 	screen.FillRect(
 		&sdl.Rect{
-			X: int16(w.x),
-			Y: int16(w.y),
-			W: uint16(w.W),
-			H: uint16(w.H),
+			X: w.X,
+			Y: w.Y,
+			W: w.W,
+			H: w.H,
 		},
 		ui.ColorToInt(w.BorderColor),
 	)
 	screen.FillRect(
 		&sdl.Rect{
-			X: int16(w.x + w.BorderWidth),
-			Y: int16(w.y + w.BorderWidth),
-			W: uint16(w.W - w.BorderWidth*2),
-			H: uint16(w.H - w.BorderWidth*2),
+			X: w.X + int16(w.BorderWidth),
+			Y: w.Y + int16(w.BorderWidth),
+			W: w.W - w.BorderWidth*2,
+			H: w.H - w.BorderWidth*2,
 		},
 		ui.ColorToInt(w.BGColor),
 	)
+
+	for _, child := range w.children {
+		child.Draw(screen)
+	}
 }
 
 func (w *Window) HandleEvent(event interface{}) bool {
+	for _, child := range w.children {
+		if child.HandleEvent(event) {
+			return true
+		}
+	}
+
 	switch event.(type) {
 	case sdl.KeyboardEvent:
 		if w.OnEscape != nil && ui.IsKeyDown(event, sdl.K_ESCAPE) {
@@ -86,11 +118,17 @@ func (w *Window) HandleEvent(event interface{}) bool {
 	return false
 }
 
-func (w *Window) SetPos(x, y uint) {
-	w.x, w.y = x, y
+func (w *Window) SetPos(x, y int16) {
+	dx, dy := x-w.X, y-w.Y
+	w.X, w.Y = x, y
+	for _, child := range w.children {
+		x, y := child.GetPos()
+		x, y = x+dx, y+dy
+		child.SetPos(x, y)
+	}
 }
 
-func (w *Window) GetPos(x, y uint) {
-	x, y = w.x, w.y
+func (w *Window) GetPos(x, y int16) {
+	x, y = w.X, w.Y
 	return
 }

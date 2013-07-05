@@ -105,13 +105,15 @@ func (m *MainMenu) Draw(screen *sdl.Surface, top bool) {
 	)
 
 	m.menuItemSelected = ""
-	y := screen.H - menuItemYOffset
+	y := int16(screen.H - menuItemYOffset)
 	for _, label := range m.itemLabels {
 		item := m.menuItems[label]
+		mx := int16(m.mouseX)
+		my := int16(m.mouseY)
 		w = uint16(item.W)
 		h = uint16(item.H)
-		y -= item.H
-		if ui.Overlaps(m.mouseX, m.mouseY, menuItemXOffset, uint16(y), w, h) {
+		y -= int16(item.H)
+		if ui.Overlaps(mx, my, menuItemXOffset, y, w, h) {
 			if top {
 				item = m.hoverItems[label]
 			}

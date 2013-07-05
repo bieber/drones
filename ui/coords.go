@@ -19,11 +19,11 @@
 
 package ui
 
-func Overlaps(x, y, left, top, width, height uint16) bool {
-	if x < left || x >= left+width {
+func Overlaps(x, y, left, top int16, width, height uint16) bool {
+	if x < left || x >= left+int16(width) {
 		return false
 	}
-	if y < top || y >= top+height {
+	if y < top || y >= top+int16(height) {
 		return false
 	}
 	return true

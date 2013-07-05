@@ -35,7 +35,7 @@ type Widget interface {
 	HandleEvent(event interface{}) bool
 
 	// SetPos positions the widget in absolute coordinates.
-	SetPos(x, y uint)
+	SetPos(x, y int16)
 	// GetPos returns the position of the widget in absolute coordinates.
-	GetPos() (x, y uint)
+	GetPos() (x, y int16)
 }

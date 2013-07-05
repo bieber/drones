@@ -21,17 +21,22 @@
 package about
 
 import (
+	"github.com/bieber/drones/ui/button"
 	"github.com/bieber/drones/ui/window"
 	"github.com/neagix/Go-SDL/sdl"
 	"time"
 )
 
-const windowWidth = 500
-const windowHeight = 300
-const borderWidth = 5
+const (
+	windowWidth  = 500
+	windowHeight = 300
+)
 
-var bgColor sdl.Color = sdl.Color{150, 150, 150, 0}
-var borderColor sdl.Color = sdl.Color{100, 100, 100, 0}
+const (
+	buttonWidth   = 100
+	buttonHeight  = 40
+	buttonPadding = 10
+)
 
 // About is a layer that displays an About dialog box.
 type About struct {
@@ -42,24 +47,24 @@ type About struct {
 func New() (a *About) {
 	a = &About{
 		running: true,
-		window: window.New(
-			0,
-			0,
-			windowWidth,
-			windowHeight,
-			borderWidth,
-			bgColor,
-			borderColor,
-		),
+		window:  window.New(0, 0, windowWidth, windowHeight),
 	}
 	a.window.OnEscape = func() { a.running = false }
+
+	b := button.New(0, 0, buttonWidth, buttonHeight, "Ok")
+	b.OnClick = func() { a.running = false }
+	a.window.AddChild(
+		b,
+		int16(windowWidth-buttonWidth-a.window.BorderWidth-buttonPadding),
+		int16(windowHeight-buttonHeight-a.window.BorderWidth-buttonPadding),
+	)
 	return
 }
 
 func (a *About) Draw(screen *sdl.Surface, top bool) {
 	a.window.SetPos(
-		(uint(screen.W)-uint(a.window.W))/2,
-		(uint(screen.H)-uint(a.window.H))/2,
+		int16((screen.W-int32(a.window.W))/2),
+		int16((screen.H-int32(a.window.H))/2),
 	)
 	a.window.Draw(screen)
 }
