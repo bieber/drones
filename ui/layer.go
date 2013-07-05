@@ -22,6 +22,7 @@ package ui
 
 import (
 	"github.com/neagix/Go-SDL/sdl"
+	"sort"
 	"time"
 )
 
@@ -80,7 +81,17 @@ func (stack LayerStack) Tick(elapsed time.Duration) []int {
 // RemoveLayers removes layers at the specified indices from the
 // stack.
 func (stack *LayerStack) RemoveLayers(indices []int) {
-	for _, i := range indices {
-		*stack = append((*stack)[:i], (*stack)[i+1:]...)
+	sort.Ints(indices)
+	newStack := make([]Layer, 0, len(*stack)-len(indices))
+	dI := 0
+	for k, v := range *stack {
+		if k == indices[dI] {
+			if dI < len(indices)-1 {
+				dI++
+			}
+			continue
+		}
+		newStack = append(newStack, v)
 	}
+	*stack = newStack
 }
