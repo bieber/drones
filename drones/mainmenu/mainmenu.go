@@ -48,6 +48,7 @@ type MainMenu struct {
 	mouseX           uint16
 	mouseY           uint16
 	newLayers        chan ui.Layer
+	running          bool
 }
 
 func New(newLayers chan ui.Layer) (m *MainMenu) {
@@ -63,10 +64,11 @@ func New(newLayers chan ui.Layer) (m *MainMenu) {
 		mouseX:           0,
 		mouseY:           0,
 		newLayers:        newLayers,
+		running:          true,
 	}
 
 	// List menu items from bottom to top
-	m.itemLabels = []string{"About", "Settings", "Play"}
+	m.itemLabels = []string{"Quit", "About", "Settings", "Play"}
 	m.menuItems = make(map[string]*sdl.Surface, len(m.itemLabels))
 	m.hoverItems = make(map[string]*sdl.Surface, len(m.itemLabels))
 	for _, label := range m.itemLabels {
@@ -130,7 +132,7 @@ func (m *MainMenu) Draw(screen *sdl.Surface, top bool) {
 }
 
 func (m *MainMenu) Tick(elapsed time.Duration) bool {
-	return true
+	return m.running
 }
 
 func (m *MainMenu) HandleEvent(event interface{}) bool {
@@ -142,9 +144,14 @@ func (m *MainMenu) HandleEvent(event interface{}) bool {
 		return true
 
 	case sdl.MouseButtonEvent:
-		e := event.(sdl.MouseButtonEvent)
-		if e.Type == sdl.MOUSEBUTTONDOWN && e.Button == 1 {
+		if ui.IsMouseDown(event, 1) {
 			m.click()
+		}
+		return true
+
+	case sdl.KeyboardEvent:
+		if ui.IsKeyDown(event, sdl.K_ESCAPE) {
+			m.running = false
 		}
 		return true
 	}
@@ -155,5 +162,7 @@ func (m *MainMenu) click() {
 	switch m.menuItemSelected {
 	case "About":
 		m.newLayers <- about.New()
+	case "Quit":
+		m.running = false
 	}
 }

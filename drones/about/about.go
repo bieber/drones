@@ -35,13 +35,13 @@ var borderColor sdl.Color = sdl.Color{100, 100, 100, 0}
 
 // About is a layer that displays an About dialog box.
 type About struct {
-	open   bool
-	window *window.Window
+	running bool
+	window  *window.Window
 }
 
 func New() (a *About) {
 	a = &About{
-		open: true,
+		running: true,
 		window: window.New(
 			0,
 			0,
@@ -52,7 +52,7 @@ func New() (a *About) {
 			borderColor,
 		),
 	}
-	a.window.OnEscape = func() { a.open = false }
+	a.window.OnEscape = func() { a.running = false }
 	return
 }
 
@@ -65,7 +65,7 @@ func (a *About) Draw(screen *sdl.Surface, top bool) {
 }
 
 func (a *About) Tick(elapsed time.Duration) bool {
-	return a.open
+	return a.running
 }
 
 func (a *About) HandleEvent(event interface{}) bool {

@@ -54,7 +54,7 @@ func main() {
 	frameTime := time.Second / time.Duration(FPS)
 	tickTimer := time.NewTicker(frameTime)
 
-	for run := true; run; {
+	for len(layerStack) != 0 {
 		select {
 		case newLayer := <-newLayers:
 			layerStack = append(layerStack, newLayer)
@@ -67,7 +67,7 @@ func main() {
 			layerStack.HandleEvent(event)
 			switch event.(type) {
 			case sdl.QuitEvent:
-				run = false
+				layerStack = nil
 			}
 		}
 	}

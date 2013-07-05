@@ -76,11 +76,12 @@ func (w *Window) Draw(screen *sdl.Surface) {
 func (w *Window) HandleEvent(event interface{}) bool {
 	switch event.(type) {
 	case sdl.KeyboardEvent:
-		k := event.(sdl.KeyboardEvent)
-		if w.OnEscape != nil && k.Keysym.Sym == sdl.K_ESCAPE {
+		if w.OnEscape != nil && ui.IsKeyDown(event, sdl.K_ESCAPE) {
 			w.OnEscape()
 			return true
 		}
+	case sdl.MouseButtonEvent:
+		return true
 	}
 	return false
 }
