@@ -21,8 +21,9 @@
 package mainmenu
 
 import (
-	"fmt"
+	"github.com/bieber/drones/drones/about"
 	"github.com/bieber/drones/fonts"
+	"github.com/bieber/drones/ui"
 	"github.com/neagix/Go-SDL/sdl"
 	"time"
 )
@@ -46,9 +47,10 @@ type MainMenu struct {
 	hoverItems       map[string]*sdl.Surface
 	mouseX           uint16
 	mouseY           uint16
+	newLayers        chan ui.Layer
 }
 
-func New() (m *MainMenu) {
+func New(newLayers chan ui.Layer) (m *MainMenu) {
 	m = &MainMenu{
 		titleText: fonts.ShadedText(
 			"Drones",
@@ -60,6 +62,7 @@ func New() (m *MainMenu) {
 		menuItemSelected: "",
 		mouseX:           0,
 		mouseY:           0,
+		newLayers:        newLayers,
 	}
 
 	// List menu items from bottom to top
@@ -106,8 +109,10 @@ func (m *MainMenu) Draw(screen *sdl.Surface, top bool) {
 		w = uint16(item.W)
 		h = uint16(item.H)
 		y -= item.H
-		if overlaps(m.mouseX, m.mouseY, menuItemXOffset, uint16(y), w, h) {
-			item = m.hoverItems[label]
+		if ui.Overlaps(m.mouseX, m.mouseY, menuItemXOffset, uint16(y), w, h) {
+			if top {
+				item = m.hoverItems[label]
+			}
 			m.menuItemSelected = label
 		}
 
@@ -147,19 +152,8 @@ func (m *MainMenu) HandleEvent(event interface{}) bool {
 }
 
 func (m *MainMenu) click() {
-	if m.menuItemSelected == "" {
-		return
+	switch m.menuItemSelected {
+	case "About":
+		m.newLayers <- about.New()
 	}
-
-	fmt.Println(m.menuItemSelected)
-}
-
-func overlaps(x, y, left, top, width, height uint16) bool {
-	if x < left || x >= left+width {
-		return false
-	}
-	if y < top || y >= top+height {
-		return false
-	}
-	return true
 }

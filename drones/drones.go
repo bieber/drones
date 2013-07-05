@@ -49,12 +49,15 @@ func main() {
 	}
 	sdl.WM_SetCaption("Drones", "")
 
-	layerStack := ui.LayerStack{mainmenu.New()}
+	newLayers := make(chan ui.Layer, 100)
+	layerStack := ui.LayerStack{mainmenu.New(newLayers)}
 	frameTime := time.Second / time.Duration(FPS)
 	tickTimer := time.NewTicker(frameTime)
 
 	for run := true; run; {
 		select {
+		case newLayer := <-newLayers:
+			layerStack = append(layerStack, newLayer)
 		case <-tickTimer.C:
 			if toRemove := layerStack.Tick(frameTime); len(toRemove) != 0 {
 				layerStack.RemoveLayers(toRemove)
