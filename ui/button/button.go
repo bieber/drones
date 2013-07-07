@@ -81,10 +81,10 @@ func (b *Button) SetLabel(text string) {
 func (b *Button) Draw(screen *sdl.Surface) {
 	screen.FillRect(
 		&sdl.Rect{
-			X: int16(b.X),
-			Y: int16(b.Y),
-			W: uint16(b.W),
-			H: uint16(b.H),
+			X: b.X,
+			Y: b.Y,
+			W: b.W,
+			H: b.H,
 		},
 		ui.ColorToInt(b.BorderColor),
 	)
@@ -96,17 +96,17 @@ func (b *Button) Draw(screen *sdl.Surface) {
 	}
 	screen.FillRect(
 		&sdl.Rect{
-			X: int16(b.X) + int16(b.BorderWidth),
-			Y: int16(b.Y) + int16(b.BorderWidth),
-			W: uint16(b.W) - 2*uint16(b.BorderWidth),
-			H: uint16(b.H) - 2*uint16(b.BorderWidth),
+			X: b.X + int16(b.BorderWidth),
+			Y: b.Y + int16(b.BorderWidth),
+			W: b.W - 2*uint16(b.BorderWidth),
+			H: b.H - 2*uint16(b.BorderWidth),
 		},
 		ui.ColorToInt(fillColor),
 	)
 	screen.Blit(
 		&sdl.Rect{
-			X: int16(b.X) + int16((int32(b.W)-b.labelText.W)/2),
-			Y: int16(b.Y) + int16((int32(b.H)-b.labelText.H)/2),
+			X: b.X + int16((int32(b.W)-b.labelText.W)/2),
+			Y: b.Y + int16((int32(b.H)-b.labelText.H)/2),
 			W: uint16(b.labelText.W),
 			H: uint16(b.labelText.H),
 		},
@@ -146,5 +146,8 @@ func (b *Button) GetPos() (x, y int16) {
 }
 
 func (b *Button) refreshText(text string, size int, color sdl.Color) {
+	if b.labelText != nil {
+		b.labelText.Free()
+	}
 	b.labelText = fonts.BlendedText(text, "sans_bold", size, color)
 }

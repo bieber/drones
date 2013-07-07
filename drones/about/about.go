@@ -22,6 +22,7 @@ package about
 
 import (
 	"github.com/bieber/drones/ui/button"
+	"github.com/bieber/drones/ui/textbox"
 	"github.com/bieber/drones/ui/window"
 	"github.com/neagix/Go-SDL/sdl"
 	"time"
@@ -37,6 +38,13 @@ const (
 	buttonHeight  = 40
 	buttonPadding = 10
 )
+
+const (
+	aboutPadding = 5
+	fontSize     = 12
+)
+
+var textColor sdl.Color = sdl.Color{255, 255, 255, 0}
 
 // About is a layer that displays an About dialog box.
 type About struct {
@@ -57,6 +65,24 @@ func New() (a *About) {
 		b,
 		int16(windowWidth-buttonWidth-a.window.BorderWidth-buttonPadding),
 		int16(windowHeight-buttonHeight-a.window.BorderWidth-buttonPadding),
+	)
+	a.window.AddChild(
+		textbox.New(
+			0,
+			0,
+			windowWidth-2*a.window.BorderWidth-2*aboutPadding,
+			windowHeight-
+				2*a.window.BorderWidth-
+				2*buttonPadding-buttonHeight-
+				2*aboutPadding,
+			aboutMessage,
+			"sans_bold",
+			fontSize,
+			textColor,
+			textbox.Center,
+		),
+		int16(a.window.BorderWidth+aboutPadding),
+		int16(a.window.BorderWidth+aboutPadding),
 	)
 	return
 }
