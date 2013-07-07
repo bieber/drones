@@ -32,4 +32,4 @@ const FPS int = 30
 const ClockRate int = 1000
 
 // ResPath is the directory to install resources to on startup.
-const ResPath string = ".resources"
+const ResPath string = ".drones"
