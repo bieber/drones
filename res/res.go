@@ -27,7 +27,8 @@ import (
 )
 
 var files map[string]func() []byte = map[string]func() []byte{
-	"FreeSansBold.ttf": FreeSansBold,
+	"FreeSansBold.ttf":  FreeSansBold,
+	"FreeSerifBold.ttf": FreeSerifBold,
 }
 
 func WriteResources(dir string) {

@@ -30,7 +30,8 @@ import (
 var fontsDir string
 
 var fontFiles map[string]string = map[string]string{
-	"sans_bold": "FreeSansBold.ttf",
+	"sans_bold":  "FreeSansBold.ttf",
+	"serif_bold": "FreeSerifBold.ttf",
 }
 
 var fonts map[string]*ttf.Font = make(map[string]*ttf.Font)

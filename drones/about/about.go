@@ -76,7 +76,7 @@ func New() (a *About) {
 				2*buttonPadding-buttonHeight-
 				2*aboutPadding,
 			aboutMessage,
-			"sans_bold",
+			"serif_bold",
 			fontSize,
 			textColor,
 			textbox.Center,
